@@ -21,5 +21,10 @@ public class Customer {
 	public void setCode(String code) {
 		this.code = code;
 	}
+
+	@Override
+	public String toString() {
+		return "Customer [code=" + code + "]";
+	}
 	
 }

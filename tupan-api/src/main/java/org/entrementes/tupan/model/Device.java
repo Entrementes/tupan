@@ -17,6 +17,9 @@ public class Device {
 	
 	@XmlElement(name="serial-number")
 	private String serialNumber;
+	
+	@XmlElement(name="stream-capable")
+	private Boolean streamCapable;
 
 	public String getManufacturerCode() {
 		return manufacturerCode;
@@ -40,6 +43,21 @@ public class Device {
 
 	public void setSerialNumber(String serialNumber) {
 		this.serialNumber = serialNumber;
+	}
+
+	public Boolean getStreamCapable() {
+		return streamCapable;
+	}
+
+	public void setStreamCapable(Boolean streamCapable) {
+		this.streamCapable = streamCapable;
+	}
+
+	@Override
+	public String toString() {
+		return "Device [manufacturerCode=" + manufacturerCode
+				+ ", modelNumber=" + modelNumber + ", serialNumber="
+				+ serialNumber + ", streamCapable=" + streamCapable + "]";
 	}
 	
 }

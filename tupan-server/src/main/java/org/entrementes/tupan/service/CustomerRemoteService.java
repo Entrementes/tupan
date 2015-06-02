@@ -37,7 +37,11 @@ public class CustomerRemoteService implements CustomerService{
 	@Override
 	public Fare connectDevice(String customerCode, Device connectedDevice, InetAddress deviceAddress) {
 		Fare result = lookupCustomer(customerCode);
-		this.gridService.registerDeviceIp(deviceAddress);
+		if(connectedDevice.getStreamCapable()){
+			this.gridService.registerDeviceIp(deviceAddress);
+		}else{
+			this.gridService.registerWebhookIp(deviceAddress);
+		}
 		return result;
 	}
 

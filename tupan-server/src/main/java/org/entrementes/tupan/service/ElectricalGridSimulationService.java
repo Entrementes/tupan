@@ -19,7 +19,9 @@ public class ElectricalGridSimulationService implements ElectricalGridService{
 	
 	private TupanInformation configuration;
 	
-	private Set<InetAddress> subscribers;
+	private Set<InetAddress> udpSubscribers;
+	
+	private Set<InetAddress> tcpSubscribers;
 	
 	private Thread loopbackmonitor;
 	
@@ -35,29 +37,34 @@ public class ElectricalGridSimulationService implements ElectricalGridService{
 	
 	@PostConstruct
 	private void init(){
-		this.subscribers = new HashSet<InetAddress>();
+		this.udpSubscribers = new HashSet<InetAddress>();
+		this.tcpSubscribers = new HashSet<InetAddress>();
 		InetAddress loopback = InetAddress.getLoopbackAddress();
-		this.subscribers.add(loopback);
+		this.udpSubscribers.add(loopback);
+		this.tcpSubscribers.add(loopback);
 		
 		this.loopbackmonitor = new Thread(new StreamLoopbackMonitor(this.configuration));
 		this.loopbackmonitor.setName("UDP loopback");
 		this.loopbackmonitor.start();
 		
-		this.gridMonitor = new Thread(new ElectricalGridMonitor(this.configuration, this.subscribers, this.gridHistory));
+		this.gridMonitor = new Thread(new ElectricalGridMonitor(this.configuration, this.udpSubscribers, tcpSubscribers, this.gridHistory));
 		this.gridMonitor.setName("Grid Monitor");
 		this.gridMonitor.start();
 	}
 	
 	@Override
-	public void registerDeviceIp(InetAddress address){
-		this.subscribers.add(address);
+	public void registerDeviceIp(InetAddress deviceAddress){
+		this.udpSubscribers.add(deviceAddress);
 	}
 
 	@Override
 	public CostDifferentials getElectricalFareDifferentials() {
 		return this.gridHistory.buildHistory();
 	}
-	
-	
 
+	@Override
+	public void registerWebhookIp(InetAddress deviceAddress) {
+		this.udpSubscribers.add(deviceAddress);
+	}
+	
 }

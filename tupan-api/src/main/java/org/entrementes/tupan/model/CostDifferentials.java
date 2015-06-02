@@ -1,5 +1,7 @@
 package org.entrementes.tupan.model;
 
+import java.util.Arrays;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -18,6 +20,12 @@ public class CostDifferentials {
 
 	public void setCostDifferentials(Float[] costDifferentials) {
 		this.costDifferentials = costDifferentials;
+	}
+
+	@Override
+	public String toString() {
+		return "CostDifferentials [costDifferentials="
+				+ Arrays.toString(costDifferentials) + "]";
 	}
 
 }

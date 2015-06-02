@@ -30,5 +30,11 @@ public class Fare {
 	public void setCostDifferentials(CostDifferentials costDifferentials) {
 		this.costDifferentials = costDifferentials;
 	}
+
+	@Override
+	public String toString() {
+		return "Fare [baseCost=" + baseCost + ", costDifferentials="
+				+ costDifferentials + "]";
+	}
 	
 }

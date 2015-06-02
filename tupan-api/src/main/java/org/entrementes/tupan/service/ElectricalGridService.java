@@ -10,4 +10,6 @@ public interface ElectricalGridService {
 	
 	CostDifferentials getElectricalFareDifferentials();
 
+	void registerWebhookIp(InetAddress deviceAddress);
+
 }
