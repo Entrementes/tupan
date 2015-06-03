@@ -10,16 +10,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Fare {
 	
 	@XmlElement(name="base-cost")
-	private Float baseCost;
+	private Double baseCost;
+	
+	@XmlElement(name="flag")
+	private Flag flag;
+	
+	@XmlElement(name="multiplier")
+	private Double multiplier;
 	
 	@XmlElement(name="cost-differentials")
 	private CostDifferentials costDifferentials;
 
-	public Float getBaseCost() {
+	public Double getBaseCost() {
 		return baseCost;
 	}
 
-	public void setBaseCost(Float baseCost) {
+	public void setBaseCost(Double baseCost) {
 		this.baseCost = baseCost;
 	}
 
@@ -29,6 +35,22 @@ public class Fare {
 
 	public void setCostDifferentials(CostDifferentials costDifferentials) {
 		this.costDifferentials = costDifferentials;
+	}
+
+	public Flag getFlag() {
+		return flag;
+	}
+
+	public void setFlag(Flag flag) {
+		this.flag = flag;
+	}
+
+	public Double getMultiplier() {
+		return multiplier;
+	}
+
+	public void setMultiplier(Double multiplier) {
+		this.multiplier = multiplier;
 	}
 
 	@Override

@@ -50,7 +50,11 @@ public class ElectricalGridMonitor implements Runnable {
 		try( DatagramSocket clientSocket = new DatagramSocket() ) {
 			byte[] payload = new byte[1024];
 			while(true){
-				Float electricalDifferential = this.generator.nextFloat() * this.configuration.getFareVariance();
+				int drift = 1;
+				if(this.generator.nextBoolean()){
+					drift *= -1;
+				}
+				Float electricalDifferential = 1 + ( drift * this.generator.nextFloat() * this.configuration.getFareVariance() );
 				this.gridHistory.add(electricalDifferential);
 				payload = this.gridHistory.buildPayload();
 				LOGGER.info("notifing subscribers");
