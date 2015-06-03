@@ -11,6 +11,10 @@ import java.util.Set;
 import org.entrementes.tupan.configuration.TupanInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 
 public class ElectricalGridMonitor implements Runnable {
 
@@ -25,13 +29,20 @@ public class ElectricalGridMonitor implements Runnable {
 	private Random generator;
 
 	private GridHistory gridHistory;
+	
+	private RestTemplate tcpClientsDispatcher;
 
-	public ElectricalGridMonitor(TupanInformation configuration, Set<InetAddress> udpSubscribers, Set<InetAddress> tcpSubscribers, GridHistory gridHistory) {
+	public ElectricalGridMonitor(TupanInformation configuration, 
+								Set<InetAddress> udpSubscribers, 
+								Set<InetAddress> tcpSubscribers, 
+								GridHistory gridHistory,
+								RestTemplate tcpClientsDispatcher) {
 		this.configuration = configuration;
 		this.udpSubscribers = udpSubscribers;
 		this.tcpSubscribers = tcpSubscribers;
 		this.generator = new Random(Calendar.getInstance().getTimeInMillis());
 		this.gridHistory = gridHistory;
+		this.tcpClientsDispatcher = tcpClientsDispatcher;
 	}
 
 	@Override
@@ -50,6 +61,15 @@ public class ElectricalGridMonitor implements Runnable {
 				}
 				for(InetAddress subscriber : this.tcpSubscribers){
 					LOGGER.debug(subscriber.getCanonicalHostName());
+					try{
+						this.tcpClientsDispatcher.postForLocation(this.configuration.getHookUrl().replace("{device-ip}", subscriber.getCanonicalHostName()), this.gridHistory.buildHistory());
+					}catch(ResourceAccessException ex){
+						//server booting up
+					}catch(HttpServerErrorException ex){
+						ex.printStackTrace();
+					}catch(HttpClientErrorException ex){
+						ex.printStackTrace();
+					}
 				}
 				Thread.sleep(this.configuration.getPoolingInterval());
 			}

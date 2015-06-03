@@ -24,7 +24,7 @@
         <appender-ref ref="stderr" />
         <appender-ref ref="stdout" />
     </root>
-    <logger name="com.mobicare">
-        <level value="INFO" />
+    <logger name="org.entrementes">
+        <level value="DEBUG" />
     </logger>
 </log4j:configuration>

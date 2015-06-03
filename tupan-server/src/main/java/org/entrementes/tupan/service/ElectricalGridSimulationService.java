@@ -13,6 +13,7 @@ import org.entrementes.tupan.service.components.GridHistory;
 import org.entrementes.tupan.service.components.StreamLoopbackMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ElectricalGridSimulationService implements ElectricalGridService{
@@ -29,9 +30,12 @@ public class ElectricalGridSimulationService implements ElectricalGridService{
 	
 	private GridHistory gridHistory;
 	
+	private RestTemplate dispatcher;
+	
 	@Autowired
-	public ElectricalGridSimulationService(TupanInformation configuration) {
+	public ElectricalGridSimulationService(TupanInformation configuration, RestTemplate dispatcher) {
 		this.configuration = configuration;
+		this.dispatcher = dispatcher;
 		this.gridHistory = new GridHistory(configuration.getHistoryBufferSize());
 	}
 	
@@ -47,7 +51,11 @@ public class ElectricalGridSimulationService implements ElectricalGridService{
 		this.loopbackmonitor.setName("UDP loopback");
 		this.loopbackmonitor.start();
 		
-		this.gridMonitor = new Thread(new ElectricalGridMonitor(this.configuration, this.udpSubscribers, tcpSubscribers, this.gridHistory));
+		this.gridMonitor = new Thread(new ElectricalGridMonitor(this.configuration,
+																this.udpSubscribers,
+																tcpSubscribers,
+																this.gridHistory,
+																this.dispatcher));
 		this.gridMonitor.setName("Grid Monitor");
 		this.gridMonitor.start();
 	}

@@ -64,4 +64,8 @@ public class TupanInformation {
 		this.baseFare = updated.getBaseFare();
 	}
 
+	public String getHookUrl() {
+		return "http://{device-ip}:9999/v1/postMeasurement";
+	}
+
 }
