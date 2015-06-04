@@ -12,11 +12,11 @@ public class TupanInformation {
 	
 	private Long poolingInterval;
 	
-	private Float fareVariance;
+	private Double fareVariance;
 
 	private Integer historyBufferSize;
 	
-	private Float baseFare;
+	private Double fareDifferentialBase;
 
 	public Integer getStreamPort() {
 		return streamPort;
@@ -34,11 +34,11 @@ public class TupanInformation {
 		this.poolingInterval = poolingInterval;
 	}
 	
-	public Float getFareVariance() {
+	public Double getFareVariance() {
 		return fareVariance;
 	}
 	
-	public void setFareVariance(Float fareVariance) {
+	public void setFareVariance(Double fareVariance) {
 		this.fareVariance = fareVariance;
 	}
 
@@ -50,18 +50,18 @@ public class TupanInformation {
 		this.historyBufferSize = historyBufferSize;
 	}
 	
-	public Float getBaseFare() {
-		return baseFare;
+	public Double getFareDifferentialBase() {
+		return fareDifferentialBase;
 	}
 	
-	public void setBaseFare(Float baseFare) {
-		this.baseFare = baseFare;
+	public void setFareDifferentialBase(Double baseFare) {
+		this.fareDifferentialBase = baseFare;
 	}
 
 	public void update(GridSimulation updated) {
 		this.fareVariance = updated.getFareVariance();
 		this.poolingInterval = updated.getPoolingInterval();
-		this.baseFare = updated.getBaseFare();
+		this.fareDifferentialBase = updated.getFareDifferentialBase();
 	}
 
 	public String getHookUrl() {

@@ -16,11 +16,11 @@ public class GridSimulation {
 	
 	@NotNull
 	@XmlElement(name="fare-variance")
-	private Float fareVariance;
+	private Double fareVariance;
 
 	@NotNull
-	@XmlElement(name="base-fare")
-	private Float baseFare;
+	@XmlElement(name="fare-differential-base")
+	private Double fareDifferentialBase;
 
 	public Long getPoolingInterval() {
 		return poolingInterval;
@@ -30,20 +30,20 @@ public class GridSimulation {
 		this.poolingInterval = poolingInterval;
 	}
 
-	public Float getFareVariance() {
+	public Double getFareVariance() {
 		return fareVariance;
 	}
 
-	public void setFareVariance(Float fareVariance) {
+	public void setFareVariance(Double fareVariance) {
 		this.fareVariance = fareVariance;
 	}
 
-	public Float getBaseFare() {
-		return this.baseFare;
+	public Double getFareDifferentialBase() {
+		return this.fareDifferentialBase;
 	}
 	
-	public void setBaseFare(Float baseFare) {
-		this.baseFare = baseFare;
+	public void setFareDifferentialBase(Double baseFare) {
+		this.fareDifferentialBase = baseFare;
 	}
 
 }

@@ -5,60 +5,51 @@ import java.util.Queue;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.entrementes.tupan.model.CostDifferentials;
+import org.entrementes.tupan.model.TupanState;
 
 public class GridHistory {
 	
-	private Queue<Float> readHistory;
+	private Queue<Double> readHistory;
 	
 	private Integer bufferSize;
 	
+	private TupanState state;
+	
 	public GridHistory(int bufferSize){
-		this.readHistory = new CircularFifoQueue<Float>(bufferSize);
+		this.readHistory = new CircularFifoQueue<Double>(bufferSize);
 		this.bufferSize = bufferSize;
+		this.state = TupanState.OK;
 	}
 	
 	public byte[] buildPayload() {
-		Queue<Float> history = new LinkedList<Float>(this.readHistory);
-		Float[] lastDifferentials = readBuffer(history);
-		return encode(lastDifferentials).getBytes();
+		return buildHistory().toString().getBytes();
 	}
 
-	private String encode(Float[] lastDifferentials) {
-		StringBuilder encoder = new StringBuilder("[");
-		for(int i = 0; i < lastDifferentials.length; i++){
-			if(lastDifferentials[i] != null){
-				encoder.append(lastDifferentials[i]);
-				if(i < lastDifferentials.length - 1 ){
-					encoder.append(",");
-				}
-			}
-		}
-		encoder.append("]");
-		String result = encoder.toString();
-		encoder = null;
-		return result;
-	}
-
-	public void add(Float electricalDifferential) {
+	public void add(Double electricalDifferential) {
 		this.readHistory.add(electricalDifferential);
 	}
 
 	public CostDifferentials buildHistory() {
 		CostDifferentials result = new CostDifferentials();
-		Queue<Float> history = new LinkedList<Float>(this.readHistory);
-		Float[] lastDifferentials = readBuffer(history);
+		result.setSystemMessage(state.toString());
+		Queue<Double> history = new LinkedList<Double>(this.readHistory);
+		Double[] lastDifferentials = readBuffer(history);
 		result.setCostDifferentials(lastDifferentials);
 		return result;
 	}
 
-	public Float[] readBuffer(Queue<Float> history) {
-		Float[] lastDifferentials = new Float[this.bufferSize];
+	public Double[] readBuffer(Queue<Double> history) {
+		Double[] lastDifferentials = new Double[this.bufferSize];
 		int length = history.size();
 		length = length > this.bufferSize ? this.bufferSize : length;
 		for(int i = 0; i < length; i++){
 			lastDifferentials[i] = history.poll();
 		}
 		return lastDifferentials;
+	}
+
+	public void setState(TupanState state) {
+		this.state = state;
 	}
 
 }

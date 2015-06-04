@@ -11,21 +11,33 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CostDifferentials {
 	
+	@XmlElement(name="system-message")
+	private String systemMessage;
+	
 	@XmlElement(name="cost-differential")
-	private Float[] costDifferentials;
+	private Double[] costDifferentials;
 
-	public Float[] getCostDifferentials() {
+	public Double[] getCostDifferentials() {
 		return costDifferentials;
 	}
 
-	public void setCostDifferentials(Float[] costDifferentials) {
+	public void setCostDifferentials(Double[] costDifferentials) {
 		this.costDifferentials = costDifferentials;
+	}
+
+	public String getSystemMessage() {
+		return systemMessage;
+	}
+
+	public void setSystemMessage(String systemMessage) {
+		this.systemMessage = systemMessage;
 	}
 
 	@Override
 	public String toString() {
-		return "CostDifferentials [costDifferentials="
-				+ Arrays.toString(costDifferentials) + "]";
+		return "{\"message\":\"" + systemMessage
+				+ "\",\"differentials\":" + Arrays.toString(costDifferentials)
+				+ "}";
 	}
 
 }

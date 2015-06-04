@@ -6,9 +6,11 @@ import java.util.List;
 import org.entrementes.tupan.entity.CustomerEntity;
 import org.entrementes.tupan.entity.FareFlagEntity;
 import org.entrementes.tupan.model.Flag;
+import org.entrementes.tupan.repositories.ChannelPerformanceRepository;
 import org.entrementes.tupan.repositories.CustomerRepository;
 import org.entrementes.tupan.repositories.DeviceRegistrationRepository;
 import org.entrementes.tupan.repositories.FareFlagRepository;
+import org.entrementes.tupan.service.ElectricalGridService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -56,6 +58,13 @@ public class TupanServer extends WebMvcConfigurerAdapter {
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context = SpringApplication.run(TupanServer.class, args);
 		
+		prepareDatabase(context);
+		
+		context.getBean(ElectricalGridService.class).start();
+		
+	}
+
+	private static void prepareDatabase(ConfigurableApplicationContext context) {
 		CustomerRepository customerRepository = context.getBean(CustomerRepository.class);
 		customerRepository.deleteAll();
 		
@@ -103,6 +112,8 @@ public class TupanServer extends WebMvcConfigurerAdapter {
 		DeviceRegistrationRepository deviceRegistrationRepository = context.getBean(DeviceRegistrationRepository.class);
 		deviceRegistrationRepository.deleteAll();
 		
+		ChannelPerformanceRepository channelPerformanceRepository = context.getBean(ChannelPerformanceRepository.class);
+		channelPerformanceRepository.deleteAll();
 	}
 	
 	

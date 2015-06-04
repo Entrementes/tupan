@@ -7,6 +7,7 @@ import org.entrementes.tupan.entity.CustomerEntity;
 import org.entrementes.tupan.entity.DeviceRegistrationEntity;
 import org.entrementes.tupan.entity.FareFlagEntity;
 import org.entrementes.tupan.expection.TupanException;
+import org.entrementes.tupan.expection.TupanExceptionCode;
 import org.entrementes.tupan.model.CostDifferentials;
 import org.entrementes.tupan.model.Device;
 import org.entrementes.tupan.model.Fare;
@@ -48,7 +49,7 @@ public class CustomerRemoteService implements CustomerService{
 	private Fare lookupCustomer(String customerCode) {
 		CustomerEntity customer = this.customerRepository.findByCode(customerCode);
 		if(customer == null){
-			throw new TupanException();
+			throw new TupanException(TupanExceptionCode.NOT_FOUND);
 		}
 		Fare result = new Fare();
 		result.setBaseCost(customer.getBaseFare());
@@ -80,12 +81,6 @@ public class CustomerRemoteService implements CustomerService{
 		this.deviceRegistrationRepository.save(registration);
 		
 		return result;
-	}
-
-	@Override
-	public CostDifferentials loadDifferentialFeed(String customerCode) {
-		lookupCustomer(customerCode);
-		return this.gridService.getElectricalFareDifferentials();
 	}
 
 }

@@ -3,8 +3,11 @@ package org.entrementes.tupan.entity;
 import java.math.BigInteger;
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.springframework.data.annotation.Id;
 
+@XmlRootElement
 public class DeviceRegistrationEntity {
 	
 	@Id

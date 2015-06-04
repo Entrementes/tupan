@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.entrementes.tupan.configuration.TupanInformation;
+import org.entrementes.tupan.service.ReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.HttpClientErrorException;
@@ -31,18 +32,22 @@ public class ElectricalGridMonitor implements Runnable {
 	private GridHistory gridHistory;
 	
 	private RestTemplate tcpClientsDispatcher;
+	
+	private ReportService service;
 
 	public ElectricalGridMonitor(TupanInformation configuration, 
 								Set<InetAddress> udpSubscribers, 
 								Set<InetAddress> tcpSubscribers, 
 								GridHistory gridHistory,
-								RestTemplate tcpClientsDispatcher) {
+								RestTemplate tcpClientsDispatcher,
+								ReportService service) {
 		this.configuration = configuration;
 		this.udpSubscribers = udpSubscribers;
 		this.tcpSubscribers = tcpSubscribers;
 		this.generator = new Random(Calendar.getInstance().getTimeInMillis());
 		this.gridHistory = gridHistory;
 		this.tcpClientsDispatcher = tcpClientsDispatcher;
+		this.service = service;
 	}
 
 	@Override
@@ -54,21 +59,33 @@ public class ElectricalGridMonitor implements Runnable {
 				if(this.generator.nextBoolean()){
 					drift *= -1;
 				}
-				Float electricalDifferential = 1 + ( drift * this.generator.nextFloat() * this.configuration.getFareVariance() );
+				Double electricalDifferential = this.configuration.getFareDifferentialBase() + ( drift * this.generator.nextFloat() * this.configuration.getFareVariance() );
 				this.gridHistory.add(electricalDifferential);
 				payload = this.gridHistory.buildPayload();
 				LOGGER.info("notifing subscribers");
 				for(InetAddress subscriber : this.udpSubscribers){
-					LOGGER.debug(subscriber.getCanonicalHostName());
-					DatagramPacket sendPacket = new DatagramPacket(payload, payload.length, subscriber, this.configuration.getStreamPort());
-					clientSocket.send(sendPacket);
+//					if(subscriber.isLoopbackAddress()){
+//						DatagramPacket sendPacket = new DatagramPacket(payload, payload.length, subscriber, this.configuration.getStreamPort());
+//						clientSocket.send(sendPacket);
+//					}else{
+						LOGGER.debug(subscriber.getCanonicalHostName());
+						Long clockOn = System.currentTimeMillis();
+						DatagramPacket sendPacket = new DatagramPacket(payload, payload.length, subscriber, this.configuration.getStreamPort());
+						clientSocket.send(sendPacket);
+						Long clockOff = System.currentTimeMillis();
+						this.service.registerPerformance(clockOn, clockOff, "UDP", subscriber.getCanonicalHostName(),clockOff - clockOn);
+//					}
+					
 				}
 				for(InetAddress subscriber : this.tcpSubscribers){
 					LOGGER.debug(subscriber.getCanonicalHostName());
 					try{
+						Long clockOn = System.currentTimeMillis();
 						this.tcpClientsDispatcher.postForLocation(this.configuration.getHookUrl().replace("{device-ip}", subscriber.getCanonicalHostName()), this.gridHistory.buildHistory());
+						Long clockOff = System.currentTimeMillis();
+						this.service.registerPerformance(clockOn, clockOff, "WEB-HOOK", subscriber.getCanonicalHostName(), clockOff - clockOn);
 					}catch(ResourceAccessException ex){
-						//server booting up
+						ex.printStackTrace();
 					}catch(HttpServerErrorException ex){
 						ex.printStackTrace();
 					}catch(HttpClientErrorException ex){

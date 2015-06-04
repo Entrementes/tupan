@@ -11,12 +11,20 @@ public class TupanExceptionHandler {
 	
 	@ExceptionHandler(Exception.class)
     public ResponseEntity<?> exception(Exception e) {
+		e.printStackTrace();
         return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 	
 	@ExceptionHandler(TupanException.class)
     public ResponseEntity<?> tupanException(TupanException e) {
-        return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+		switch(e.getCode()){
+		case NOT_FOUND:
+			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+		case BAD_REQUEST:
+			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+		default:
+			return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
     }	
 
 }

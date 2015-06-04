@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.entrementes.tupan.model.Device;
 import org.entrementes.tupan.model.Fare;
 import org.entrementes.tupan.service.CustomerService;
+import org.entrementes.tupan.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,15 +25,22 @@ public class CustomerResources {
 	
 	private CustomerService service;
 	
+	private ReportService reports;
+	
 	@Autowired
-	private CustomerResources(CustomerService service){
+	private CustomerResources(CustomerService service, ReportService reports){
 		this.service = service;
+		this.reports = reports;
 	}
 	
 	@RequestMapping(value="/{customer-code}",method=RequestMethod.GET, produces={"application/json","application/xml","text/plain"})
 	@ResponseStatus(value = HttpStatus.OK)
-	public @ResponseBody Fare loadCustomerFare(@PathVariable(value="customer-code") String customerCode){
-		return this.service.loadCustomerFare(customerCode);
+	public @ResponseBody Fare loadCustomerFare(@PathVariable(value="customer-code") String customerCode, HttpServletRequest request){
+		Long clockOn = System.currentTimeMillis();
+		Fare result = this.service.loadCustomerFare(customerCode);
+		Long clockOff = System.currentTimeMillis();
+		this.reports.registerPerformance(clockOn,clockOff,"POOLING",request.getRemoteAddr(), clockOff - clockOn);
+		return result;
 	}
 	
 	@RequestMapping(value="/{customer-code}",method=RequestMethod.POST, produces={"application/json","application/xml","text/plain"}, consumes={"application/json","application/xml"})
