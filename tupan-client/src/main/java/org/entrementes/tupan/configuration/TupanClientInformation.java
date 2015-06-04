@@ -1,6 +1,9 @@
 package org.entrementes.tupan.configuration;
 
+import org.entrementes.tupan.expection.TupanException;
+import org.entrementes.tupan.expection.TupanExceptionCode;
 import org.entrementes.tupan.model.CommunicationStrattegy;
+import org.entrementes.tupan.model.Device;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,6 +29,8 @@ public class TupanClientInformation {
 
 	private String manufacturerCode;
 
+	private Long poolingInterval;
+	
 	public Integer getStreamPort() {
 		return streamPort;
 	}
@@ -96,5 +101,35 @@ public class TupanClientInformation {
 	
 	public void setSerialNumber(String serialNumber) {
 		this.serialNumber = serialNumber;
+	}
+	
+	public Long getPoolingInterval() {
+		return poolingInterval;
+	}
+
+	public void setPoolingInterval(Long poolingInterval) {
+		this.poolingInterval = poolingInterval;
+	}
+
+	public String getTupanServerUrl() {
+		switch(getStrattegy()){
+		case POOLING:
+			return getTupanServerAddress().replace("{customer-id}", getPooler());
+		case STREAM:
+			return getTupanServerAddress().replace("{customer-id}", getStreamer());
+		case WEB_HOOK:
+			return getTupanServerAddress().replace("{customer-id}", getHook());	
+		default:
+			throw new TupanException(TupanExceptionCode.BAD_REQUEST);
+		}
+	}
+	
+	public Device buildDevice() {
+		Device result = new Device();
+		result.setStreamCapable(CommunicationStrattegy.STREAM.equals(getStrattegy()));
+		result.setManufacturerCode(getManufacturerCode());
+		result.setModelNumber(getModelNumber());
+		result.setSerialNumber(getSerialNumber());
+		return result;
 	}
 }

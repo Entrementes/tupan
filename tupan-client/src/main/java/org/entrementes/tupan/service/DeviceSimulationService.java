@@ -3,9 +3,10 @@ package org.entrementes.tupan.service;
 import org.entrementes.tupan.configuration.TupanClientInformation;
 import org.entrementes.tupan.expection.TupanException;
 import org.entrementes.tupan.expection.TupanExceptionCode;
-import org.entrementes.tupan.model.CommunicationStrattegy;
+import org.entrementes.tupan.model.CostDifferentials;
 import org.entrementes.tupan.model.Device;
 import org.entrementes.tupan.model.Fare;
+import org.entrementes.tupan.service.component.FareMonitor;
 import org.entrementes.tupan.service.component.StreamMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,8 @@ public class DeviceSimulationService implements DeviceService{
 	
 	private Thread monitoringThread;
 	
+	private Thread farePoolingThread;
+	
 	@Autowired
 	public DeviceSimulationService(TupanClientInformation configuration, RestTemplate dispatcher){
 		this.configuration = configuration;
@@ -34,40 +37,42 @@ public class DeviceSimulationService implements DeviceService{
 	
 	@Override
 	public void connect() {
-		String tupanserverUrl = getTupanServerUrl();
+		String tupanserverUrl = this.configuration.getTupanServerUrl();
 		LOGGER.info("connecting to: " + tupanserverUrl);
-		Device smartDevice = buildDevice();
-		this.currentFare = this.dispatcher.postForObject(tupanserverUrl, smartDevice, Fare.class);
+		Device smartDevice = this.configuration.buildDevice();
 		LOGGER.info("current fare: " + this.currentFare);
-		this.monitoringThread = new Thread(new StreamMonitor(configuration, this));
-		this.monitoringThread.start();
-	}
-
-	private String getTupanServerUrl() {
 		switch(this.configuration.getStrattegy()){
 		case POOLING:
-			return this.configuration.getTupanServerAddress().replace("{customer-id}", this.configuration.getPooler());
+			break;
 		case STREAM:
-			return this.configuration.getTupanServerAddress().replace("{customer-id}", this.configuration.getStreamer());
+			this.currentFare = this.dispatcher.postForObject(tupanserverUrl, smartDevice, Fare.class);
+			this.monitoringThread = new Thread(new StreamMonitor(configuration, this));
+			this.monitoringThread.start();
+			break;
 		case WEB_HOOK:
-			return this.configuration.getTupanServerAddress().replace("{customer-id}", this.configuration.getHook());	
+			this.currentFare = this.dispatcher.postForObject(tupanserverUrl, smartDevice, Fare.class);
+			break;	
 		default:
 			throw new TupanException(TupanExceptionCode.BAD_REQUEST);
 		}
-	}
-
-	private Device buildDevice() {
-		Device result = new Device();
-		result.setStreamCapable(CommunicationStrattegy.STREAM.equals(this.configuration.getStrattegy()));
-		result.setManufacturerCode(this.configuration.getManufacturerCode());
-		result.setModelNumber(this.configuration.getModelNumber());
-		result.setSerialNumber(this.configuration.getSerialNumber());
-		return result;
+		this.farePoolingThread = new Thread(new FareMonitor(this.dispatcher, this.configuration, this));
+		this.farePoolingThread.start();
 	}
 
 	@Override
 	public void processStream(String payload) {
 		LOGGER.debug(payload);
+	}
+
+	@Override
+	public void processStream(CostDifferentials differentials) {
+		LOGGER.debug(differentials.toString());
+		
+	}
+
+	public void loadFare(Fare currentFare) {
+		this.currentFare = currentFare;
+		processStream(currentFare.getCostDifferentials());
 	}
 
 }
