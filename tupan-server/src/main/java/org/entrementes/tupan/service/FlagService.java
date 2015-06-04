@@ -13,11 +13,14 @@ public class FlagService {
 
 	private FareFlagRepository repository;
 	
-	private Flag[] dummyDayModel = new Flag[]{Flag.WHITE,//0
-			Flag.WHITE, Flag.WHITE, Flag.WHITE, Flag.WHITE, Flag.GREEN, Flag.GREEN, Flag.GREEN, //8
-			Flag.YELLOW, Flag.YELLOW, Flag.RED, Flag.RED, Flag.RED, Flag.YELLOW, Flag.YELLOW, //14
-			Flag.YELLOW, Flag.YELLOW, Flag.RED, Flag.RED, Flag.RED, Flag.RED, Flag.RED, Flag.YELLOW,
-			Flag.GREEN};
+	private Flag[] dummyDayModel = new Flag[]{	Flag.WHITE, Flag.WHITE, Flag.WHITE, 
+												Flag.WHITE, Flag.WHITE, Flag.GREEN, 
+												Flag.GREEN, Flag.GREEN, Flag.YELLOW, 
+												Flag.YELLOW, Flag.RED, Flag.RED, 
+												Flag.RED, Flag.YELLOW, Flag.YELLOW,
+												Flag.YELLOW, Flag.YELLOW, Flag.RED, 
+												Flag.RED, Flag.RED, Flag.RED, 
+												Flag.YELLOW, Flag.GREEN, Flag.GREEN };
 	
 	@Autowired
 	public FlagService(FareFlagRepository repository) {
