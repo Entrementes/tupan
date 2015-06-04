@@ -1,8 +1,5 @@
 FROM java:8
 
-RUN apt-get update
-RUN apt-get install haveged -y
-
 VOLUME /tmp
 ADD tupan-client.jar app.jar
 RUN bash -c 'touch /app.jar'
