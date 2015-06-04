@@ -86,7 +86,10 @@ public class SystemResources {
 	
 	@RequestMapping(value="/status",method=RequestMethod.POST, produces={"application/json","application/xml","text/plain","*"}, consumes={"*/*"})
 	@ResponseStatus(value = HttpStatus.OK)
-	public @ResponseBody CostDifferentials setStatus(@RequestBody StateChange change){
+	public @ResponseBody CostDifferentials setStatus(@Valid @RequestBody StateChange change, BindingResult validationResult){
+		if(validationResult.hasErrors()){
+			throw new TupanException(TupanExceptionCode.BAD_REQUEST);
+		}
 		return this.service.setState(change);
 	}
 

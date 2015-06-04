@@ -86,7 +86,7 @@ public class ElectricalGridSimulationService implements ElectricalGridService{
 
 	@Override
 	public CostDifferentials setState(StateChange change) {
-		this.gridHistory.setState(change.getStatus());
+		this.gridHistory.setState(change.getState());
 		return this.gridHistory.buildHistory();
 	}
 	

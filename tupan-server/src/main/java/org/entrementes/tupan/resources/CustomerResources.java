@@ -4,13 +4,17 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
+import org.entrementes.tupan.expection.TupanException;
+import org.entrementes.tupan.expection.TupanExceptionCode;
 import org.entrementes.tupan.model.Device;
 import org.entrementes.tupan.model.Fare;
 import org.entrementes.tupan.service.CustomerService;
 import org.entrementes.tupan.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +49,13 @@ public class CustomerResources {
 	
 	@RequestMapping(value="/{customer-code}",method=RequestMethod.POST, produces={"application/json","application/xml","text/plain"}, consumes={"application/json","application/xml"})
 	@ResponseStatus(value = HttpStatus.OK)
-	public @ResponseBody Fare loadCustomerFare(@PathVariable(value="customer-code") String customerCode, @RequestBody Device connectedDevice, HttpServletRequest request) throws UnknownHostException{
+	public @ResponseBody Fare loadCustomerFare( @PathVariable(value="customer-code") String customerCode, 
+												@Valid @RequestBody Device connectedDevice, 
+												HttpServletRequest request, 
+												BindingResult validationResult) throws UnknownHostException {
+		if(validationResult.hasErrors()){
+			throw new TupanException(TupanExceptionCode.BAD_REQUEST);
+		}
 		InetAddress requestAddress = InetAddress.getByName(request.getRemoteHost());
 		return this.service.connectDevice(customerCode, connectedDevice, requestAddress);
 	}

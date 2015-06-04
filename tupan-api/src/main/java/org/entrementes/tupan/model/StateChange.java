@@ -1,5 +1,6 @@
 package org.entrementes.tupan.model;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -9,15 +10,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StateChange {
 	
+	@NotNull
 	@XmlElement
-	private TupanState status;
+	private TupanState state;
 
-	public TupanState getStatus() {
-		return status;
+	public TupanState getState() {
+		return state;
 	}
 
-	public void setStatus(TupanState status) {
-		this.status = status;
+	public void setState(TupanState status) {
+		this.state = status;
 	}
 
 }

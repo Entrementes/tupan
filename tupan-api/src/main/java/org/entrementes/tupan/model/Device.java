@@ -1,5 +1,6 @@
 package org.entrementes.tupan.model;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -9,15 +10,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Device {
 	
+	@NotNull
 	@XmlElement(name="manufacturer-code")
 	private String manufacturerCode;
 	
+	@NotNull
 	@XmlElement(name="model-number")
 	private String modelNumber;
 	
+	@NotNull
 	@XmlElement(name="serial-number")
 	private String serialNumber;
 	
+	@NotNull
 	@XmlElement(name="stream-capable")
 	private Boolean streamCapable;
 
