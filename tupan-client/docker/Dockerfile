@@ -7,7 +7,7 @@ RUN bash -c 'touch /app.jar'
 ADD start.sh /start.sh
 RUN chmod 755 /start.sh
 
-EXPOSE 7777
+EXPOSE 9999
 EXPOSE 9998
 
 ENTRYPOINT ["/start.sh"]
