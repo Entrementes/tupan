@@ -64,8 +64,13 @@ public class TupanInformation {
 		this.fareDifferentialBase = updated.getFareDifferentialBase();
 	}
 
-	public String getHookUrl() {
-		return "http://{device-ip}:9999/v1/postMeasurement";
+	public String getHookUrl(String ip) {
+		if("localhost".equalsIgnoreCase(ip)){
+			return "http://{device-ip}:9999/v1/postMeasurement".replace("{device-ip}", ip);
+		}else{
+			return "http://{device-ip}:7777/v1/postMeasurement".replace("{device-ip}", ip);
+		}
+		
 	}
 
 }

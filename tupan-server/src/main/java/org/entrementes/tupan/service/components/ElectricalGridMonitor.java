@@ -64,26 +64,28 @@ public class ElectricalGridMonitor implements Runnable {
 				payload = this.gridHistory.buildPayload();
 				LOGGER.info("notifing subscribers");
 				for(InetAddress subscriber : this.udpSubscribers){
-//					if(subscriber.isLoopbackAddress()){
-//						DatagramPacket sendPacket = new DatagramPacket(payload, payload.length, subscriber, this.configuration.getStreamPort());
-//						clientSocket.send(sendPacket);
-//					}else{
+					if(subscriber.isLoopbackAddress()){
+						DatagramPacket sendPacket = new DatagramPacket(payload, payload.length, subscriber, this.configuration.getStreamPort());
+						clientSocket.send(sendPacket);
+					}else{
 						LOGGER.debug(subscriber.getCanonicalHostName());
 						Long clockOn = System.currentTimeMillis();
 						DatagramPacket sendPacket = new DatagramPacket(payload, payload.length, subscriber, this.configuration.getStreamPort());
 						clientSocket.send(sendPacket);
 						Long clockOff = System.currentTimeMillis();
 						this.service.registerPerformance(clockOn, clockOff, "UDP", subscriber.getCanonicalHostName(),clockOff - clockOn);
-//					}
+					}
 					
 				}
 				for(InetAddress subscriber : this.tcpSubscribers){
 					LOGGER.debug(subscriber.getCanonicalHostName());
 					try{
 						Long clockOn = System.currentTimeMillis();
-						this.tcpClientsDispatcher.postForLocation(this.configuration.getHookUrl().replace("{device-ip}", subscriber.getCanonicalHostName()), this.gridHistory.buildHistory());
+						this.tcpClientsDispatcher.postForLocation(this.configuration.getHookUrl(subscriber.getCanonicalHostName()), this.gridHistory.buildHistory());
 						Long clockOff = System.currentTimeMillis();
-						this.service.registerPerformance(clockOn, clockOff, "WEB-HOOK", subscriber.getCanonicalHostName(), clockOff - clockOn);
+						if(!subscriber.isLoopbackAddress()){
+							this.service.registerPerformance(clockOn, clockOff, "WEB-HOOK", subscriber.getCanonicalHostName(), clockOff - clockOn);
+						}
 					}catch(ResourceAccessException ex){
 						ex.printStackTrace();
 					}catch(HttpServerErrorException ex){

@@ -75,7 +75,7 @@ public class ElectricalGridSimulationService implements ElectricalGridService{
 
 	@Override
 	public void registerWebhookIp(InetAddress deviceAddress) {
-		this.udpSubscribers.add(deviceAddress);
+		this.tcpSubscribers.add(deviceAddress);
 	}
 
 	@Override

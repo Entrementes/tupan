@@ -25,7 +25,7 @@ public class WebhookEndpoint {
 		this.service = service;
 	}
 	
-	@RequestMapping(value="/postMeasurement",method=RequestMethod.POST, consumes={"application/json","application/xml"}, produces={"text/plain"})
+	@RequestMapping(value="/postMeasurement",method=RequestMethod.POST, consumes={"application/json","application/xml"}, produces={"*/*"})
 	@ResponseStatus(value = HttpStatus.OK)
 	public @ResponseBody String loopback(@RequestBody CostDifferentials differentials){
 		LOGGER.info(differentials.toString());
