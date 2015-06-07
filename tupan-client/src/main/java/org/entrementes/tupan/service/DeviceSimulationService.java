@@ -43,7 +43,7 @@ public class DeviceSimulationService implements DeviceService{
 		this.configuration = configuration;
 		this.dispatcher = dispatcher;
 		try{
-			this.device = new DummyDevice();
+			this.device = new DummyDevice(configuration.getFareLimit());
 			LOGGER.info("Dummy Device Initialized");
 		}catch(Error ex){
 			ex.printStackTrace();

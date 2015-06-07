@@ -30,6 +30,8 @@ public class TupanClientInformation {
 	private String manufacturerCode;
 
 	private Long poolingInterval;
+
+	private Double fareLimit;
 	
 	public Integer getStreamPort() {
 		return streamPort;
@@ -131,5 +133,13 @@ public class TupanClientInformation {
 		result.setModelNumber(getModelNumber());
 		result.setSerialNumber(getSerialNumber());
 		return result;
+	}
+
+	public Double getFareLimit() {
+		return this.fareLimit;
+	}
+	
+	public void setFareLimit(Double fareLimit) {
+		this.fareLimit = fareLimit;
 	}
 }

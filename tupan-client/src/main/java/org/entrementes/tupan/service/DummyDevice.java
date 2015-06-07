@@ -4,6 +4,8 @@ import org.entrementes.tupan.model.CostDifferentials;
 import org.entrementes.tupan.model.Fare;
 import org.entrementes.tupan.model.Flag;
 import org.entrementes.tupan.model.TupanState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -14,6 +16,8 @@ import com.pi4j.io.gpio.RaspiPin;
 
 public class DummyDevice {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DummyDevice.class);
+	
 	private GpioController gpio;
 	
 	private GpioPinDigitalOutput greenFlag;
@@ -28,9 +32,14 @@ public class DummyDevice {
 	
 	private GpioPinDigitalOutput systemFail;
 	
-	private GpioPinDigitalInput deviceSwitch;
+	private GpioPinDigitalOutput fareLimitOver;
 	
-	public DummyDevice() {
+	private GpioPinDigitalInput deviceSwitch;
+
+	private Double fareLimit;
+	
+	public DummyDevice(Double fareLimit) {
+		this.fareLimit = fareLimit;
 		this.gpio = GpioFactory.getInstance();
         this.greenFlag = this.gpio.provisionDigitalOutputPin(RaspiPin.GPIO_00, PinState.LOW);
         this.yellowFlag = this.gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, PinState.LOW);
@@ -38,6 +47,7 @@ public class DummyDevice {
         this.systemOk = this.gpio.provisionDigitalOutputPin(RaspiPin.GPIO_12, PinState.LOW);
         this.systemWarn = this.gpio.provisionDigitalOutputPin(RaspiPin.GPIO_13, PinState.LOW);
         this.systemFail = this.gpio.provisionDigitalOutputPin(RaspiPin.GPIO_14, PinState.LOW);
+        this.fareLimitOver = this.gpio.provisionDigitalOutputPin(RaspiPin.GPIO_21, PinState.LOW);
         this.deviceSwitch  = this.gpio.provisionDigitalInputPin(RaspiPin.GPIO_01);
 	}
 	
@@ -98,8 +108,17 @@ public class DummyDevice {
 	}
 
 	public void checkFare(Fare currentFare, CostDifferentials differentials) {
-		// TODO Auto-generated method stub
+		Double[] differentialsValues = differentials.getCostDifferentials();
 		
+		Double currentFareValue = currentFare.getBaseCost() * currentFare.getMultiplier() * differentialsValues[differentialsValues.length-1];
+		
+		if(this.fareLimit < currentFareValue){
+			LOGGER.info("fare limit reached");
+			this.fareLimitOver.setState(PinState.HIGH);
+		}else{
+			LOGGER.info("fare under limit");
+			this.fareLimitOver.setState(PinState.LOW);
+		}
 	}
 	
 }
