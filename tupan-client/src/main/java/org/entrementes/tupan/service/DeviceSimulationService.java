@@ -1,11 +1,14 @@
 package org.entrementes.tupan.service;
 
+import java.io.IOException;
+
 import org.entrementes.tupan.configuration.TupanClientInformation;
 import org.entrementes.tupan.expection.TupanException;
 import org.entrementes.tupan.expection.TupanExceptionCode;
 import org.entrementes.tupan.model.CostDifferentials;
 import org.entrementes.tupan.model.Device;
 import org.entrementes.tupan.model.Fare;
+import org.entrementes.tupan.model.TupanState;
 import org.entrementes.tupan.service.component.FareMonitor;
 import org.entrementes.tupan.service.component.StreamMonitor;
 import org.slf4j.Logger;
@@ -13,6 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class DeviceSimulationService implements DeviceService{
@@ -29,10 +36,19 @@ public class DeviceSimulationService implements DeviceService{
 	
 	private Thread farePoolingThread;
 	
+	private DummyDevice device;
+	
 	@Autowired
 	public DeviceSimulationService(TupanClientInformation configuration, RestTemplate dispatcher){
 		this.configuration = configuration;
 		this.dispatcher = dispatcher;
+		try{
+			this.device = new DummyDevice();
+			LOGGER.info("Dummy Device Initialized");
+		}catch(Error ex){
+			ex.printStackTrace();
+			LOGGER.info("Running in simmulation mode");
+		}
 	}
 	
 	@Override
@@ -61,18 +77,43 @@ public class DeviceSimulationService implements DeviceService{
 
 	@Override
 	public void processStream(String payload) {
-		LOGGER.debug(payload);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			CostDifferentials differentials = mapper.readValue(payload, CostDifferentials.class);
+			processStream(differentials);
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+			throw new TupanException(TupanExceptionCode.UNMAPPED);
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+			throw new TupanException(TupanExceptionCode.UNMAPPED);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new TupanException(TupanExceptionCode.UNMAPPED);
+		}
 	}
 
 	@Override
 	public void processStream(CostDifferentials differentials) {
 		LOGGER.debug(differentials.toString());
-		
+		if(this.device != null){
+			TupanState state  = TupanState.valueOf(differentials.getSystemMessage());
+			this.device.setState(state);
+			this.device.checkFare(this.currentFare,differentials);
+		}
 	}
 
 	public void loadFare(Fare currentFare) {
 		this.currentFare = currentFare;
+		if(this.device != null){
+			this.device.setFlag(currentFare.getFlag());
+		}
 		processStream(currentFare.getCostDifferentials());
+	}
+
+	@Override
+	public Fare getFare() {
+		return this.currentFare;
 	}
 
 }

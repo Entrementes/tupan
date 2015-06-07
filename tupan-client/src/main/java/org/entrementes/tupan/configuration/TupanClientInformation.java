@@ -116,9 +116,9 @@ public class TupanClientInformation {
 		case POOLING:
 			return getTupanServerAddress().replace("{customer-id}", getPooler());
 		case STREAM:
-			return getTupanServerAddress().replace("{customer-id}", getStreamer());
+			return getTupanServerAddress().replace("{customer-id}", getStreamer())+"?pooling-subscriber=false";
 		case WEB_HOOK:
-			return getTupanServerAddress().replace("{customer-id}", getHook());	
+			return getTupanServerAddress().replace("{customer-id}", getHook())+"?pooling-subscriber=false";	
 		default:
 			throw new TupanException(TupanExceptionCode.BAD_REQUEST);
 		}

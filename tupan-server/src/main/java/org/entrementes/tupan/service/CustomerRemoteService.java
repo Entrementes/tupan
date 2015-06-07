@@ -39,10 +39,12 @@ public class CustomerRemoteService implements CustomerService{
 	}
 	
 	@Override
-	public Fare loadCustomerFare(String customerCode) {
+	public Fare loadCustomerFare(String customerCode, boolean poolingSubscriber) {
 		Fare result = lookupCustomer(customerCode);
-		CostDifferentials currentDifferentials = this.gridService.getElectricalFareDifferentials();
-		result.setCostDifferentials(currentDifferentials);
+		if(poolingSubscriber){
+			CostDifferentials currentDifferentials = this.gridService.getElectricalFareDifferentials();
+			result.setCostDifferentials(currentDifferentials);
+		}
 		return result;
 	}
 

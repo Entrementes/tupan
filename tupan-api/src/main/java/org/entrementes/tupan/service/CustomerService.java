@@ -7,7 +7,7 @@ import org.entrementes.tupan.model.Fare;
 
 public interface CustomerService {
 	
-	Fare loadCustomerFare(String customerCode);
+	Fare loadCustomerFare(String customerCode, boolean poolingSusbcriber);
 
 	Fare connectDevice(String customerCode, Device connectedDevice, InetAddress deviceAddress);
 

@@ -35,8 +35,8 @@ public class CostDifferentials {
 
 	@Override
 	public String toString() {
-		return "{\"message\":\"" + systemMessage
-				+ "\",\"differentials\":" + Arrays.toString(costDifferentials)
+		return "{\"systemMessage\":\"" + systemMessage
+				+ "\",\"costDifferentials\":" + Arrays.toString(costDifferentials)
 				+ "}";
 	}
 
