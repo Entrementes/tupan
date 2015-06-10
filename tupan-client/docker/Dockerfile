@@ -1,7 +1,7 @@
 FROM java:8
 
 VOLUME /tmp
-ADD tupan-client.jar app.jar
+ADD https://github.com/Entrementes/tupan/blob/mvn-repo/org/entrementes/tupan-client/1.0.0/tupan-client-1.0.0.jar app.jar
 RUN bash -c 'touch /app.jar'
 
 ADD start.sh /start.sh

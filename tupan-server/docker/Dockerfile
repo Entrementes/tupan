@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y lsb-release haveged mongodb-org
 RUN mkdir -p /data/db
 
 VOLUME /tmp
-ADD tupan-server.jar app.jar
+ADD https://github.com/Entrementes/tupan/blob/mvn-repo/org/entrementes/tupan-server/1.0.0/tupan-server-1.0.0.jar app.jar
 RUN bash -c 'touch /app.jar'
 
 ADD start.sh /start.sh
