@@ -22,7 +22,7 @@ ENV transport.registerPort=9997
 ENV transport.consumptionPort=9998
 
 VOLUME /tmp
-ADD https://raw.githubusercontent.com/Entrementes/tupan/mvn-repo/org/entrementes/tupan-server/1.0.0/tupan-server-1.0.0.jar app.jar
+ADD https://raw.githubusercontent.com/Entrementes/tupan/mvn-repo/org/entrementes/tupan-server/1.0.1/tupan-server-1.0.1.jar app.jar
 RUN bash -c 'touch /app.jar'
 
 ADD start.sh /start.sh
