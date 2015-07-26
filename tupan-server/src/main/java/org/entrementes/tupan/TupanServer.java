@@ -1,17 +1,16 @@
 package org.entrementes.tupan;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.entrementes.tupan.entity.CustomerEntity;
-import org.entrementes.tupan.entity.FareFlagEntity;
-import org.entrementes.tupan.model.Flag;
-import org.entrementes.tupan.repositories.ChannelPerformanceRepository;
-import org.entrementes.tupan.repositories.CustomerRepository;
-import org.entrementes.tupan.repositories.DeviceRegistrationRepository;
-import org.entrementes.tupan.repositories.FareFlagRepository;
-import org.entrementes.tupan.service.ElectricalGridService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.dozer.DozerBeanMapper;
+import org.entrementes.tupan.entities.ConsumptionFlag;
+import org.entrementes.tupan.entities.User;
+import org.entrementes.tupan.model.ConsumerType;
+import org.entrementes.tupan.repositories.UserRepository;
+import org.entrementes.tupan.services.MockGridConnection;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -31,24 +30,38 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableAutoConfiguration
 public class TupanServer extends WebMvcConfigurerAdapter {
 
-	@Autowired
-	private CustomerRepository repository;
+	private MockGridConnection gridState = new MockGridConnection();
 	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/**").addResourceLocations("/");
 	}
+
+	@Bean(name = "org.dozer.Mapper")
+	public DozerBeanMapper dozerBean() {
+		List<String> mappingFiles = Arrays.asList();
+
+		DozerBeanMapper dozerBean = new DozerBeanMapper();
+		dozerBean.setMappingFiles(mappingFiles);
+		return dozerBean;
+	}
 	
 	@Bean
-	public RestTemplate restTemplate(){
-		RestTemplate restDispatcher = new RestTemplate(clientHttpRequestFactory());
+	public MockGridConnection gridState(){
+		return this.gridState;
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		RestTemplate restDispatcher = new RestTemplate(
+				clientHttpRequestFactory());
 		List<HttpMessageConverter<?>> converters = new ArrayList<>();
 		converters.add(new MappingJackson2HttpMessageConverter());
 		restDispatcher.setMessageConverters(converters);
 		return restDispatcher;
 	}
-	
-	private ClientHttpRequestFactory clientHttpRequestFactory(){
+
+	private ClientHttpRequestFactory clientHttpRequestFactory() {
 		HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
 		factory.setReadTimeout(2000);
 		factory.setConnectTimeout(2000);
@@ -56,65 +69,32 @@ public class TupanServer extends WebMvcConfigurerAdapter {
 	}
 
 	public static void main(String[] args) {
-		ConfigurableApplicationContext context = SpringApplication.run(TupanServer.class, args);
-		
+		ConfigurableApplicationContext context = SpringApplication.run(
+				TupanServer.class, args);
 		prepareDatabase(context);
-		
-		context.getBean(ElectricalGridService.class).start();
-		
+		prepareGridState(context);
+	}
+
+	private static void prepareGridState(ConfigurableApplicationContext context) {
+		MockGridConnection state = context.getBean(MockGridConnection.class);
+		state.setFlag(ConsumptionFlag.WHITE);
+		state.setBaseFare(5.00);
+		state.setSystemMessage("OK");
+		state.setUpdateInterval(2);
+		state.setLastUpadate(LocalDateTime.now());
 	}
 
 	private static void prepareDatabase(ConfigurableApplicationContext context) {
-		CustomerRepository customerRepository = context.getBean(CustomerRepository.class);
-		customerRepository.deleteAll();
+		UserRepository userRepository = context.getBean(UserRepository.class);
+		userRepository.deleteAll();
 		
-		CustomerEntity streamer = new CustomerEntity();
-		streamer.setCode("streamer");
-		streamer.setName("UDP customer");
-		streamer.setBaseFare(10.0);
-		customerRepository.save(streamer);
+		User consumer = new User();
 		
-		CustomerEntity hook = new CustomerEntity();
-		hook.setCode("hook");
-		hook.setName("Webhook customer");
-		hook.setBaseFare(9.0);
-		customerRepository.save(hook);
+		consumer.setUserId("gunisalvo");
+		consumer.setUtlitiesProviderId("INFNET");
+		consumer.setUserType(ConsumerType.RESIDENTIAL_A);
 		
-		CustomerEntity pooler = new CustomerEntity();
-		pooler.setCode("pooler");
-		pooler.setName("Pooling customer");
-		pooler.setBaseFare(11.0);
-		customerRepository.save(pooler);
-		
-		FareFlagRepository fareFlagRepository = context.getBean(FareFlagRepository.class);
-		fareFlagRepository.deleteAll();
-		
-		FareFlagEntity white = new FareFlagEntity();
-		white.setFlag(Flag.WHITE);
-		white.setMultiplier(0.75);
-		fareFlagRepository.save(white);
-		
-		FareFlagEntity green = new FareFlagEntity();
-		green.setFlag(Flag.GREEN);
-		green.setMultiplier(1.0);
-		fareFlagRepository.save(green);
-		
-		FareFlagEntity yellow = new FareFlagEntity();
-		yellow.setFlag(Flag.YELLOW);
-		yellow.setMultiplier(1.5);
-		fareFlagRepository.save(yellow);
-		
-		FareFlagEntity red = new FareFlagEntity();
-		red.setFlag(Flag.RED);
-		red.setMultiplier(2.0);
-		fareFlagRepository.save(red);
-		
-		DeviceRegistrationRepository deviceRegistrationRepository = context.getBean(DeviceRegistrationRepository.class);
-		deviceRegistrationRepository.deleteAll();
-		
-		ChannelPerformanceRepository channelPerformanceRepository = context.getBean(ChannelPerformanceRepository.class);
-		channelPerformanceRepository.deleteAll();
+		userRepository.save(consumer);
 	}
-	
-	
+
 }

@@ -71,9 +71,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-collections4</artifactId>
-			<version>4.0</version>
+			<groupId>net.sf.dozer</groupId>
+			<artifactId>dozer</artifactId>
+			<version>5.5.1</version>
 		</dependency>
 
 		<dependency>
@@ -203,5 +203,5 @@
 			tupan-server
 		</finalName>
 	</build>
-	
+
 </project>

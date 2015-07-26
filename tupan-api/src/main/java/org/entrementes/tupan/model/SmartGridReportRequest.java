@@ -23,6 +23,11 @@ public class SmartGridReportRequest {
 	public SmartGridReportRequest() {
 	}
 	
+	public SmartGridReportRequest(String utlitiesProviderId, String userId) {
+		this.utlitiesProviderId = utlitiesProviderId;
+		this.userId = userId;
+	}
+
 	/**
 	 * @return the device's owner identification code in the
 	 * electrical utilities service provider system.

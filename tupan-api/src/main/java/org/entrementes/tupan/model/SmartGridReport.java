@@ -1,6 +1,6 @@
 package org.entrementes.tupan.model;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 /**
  * This value Object is the main message of the Tupã API.
@@ -21,9 +21,9 @@ public class SmartGridReport {
 	
 	private String systemStateCode;
 	
-	private LocalDate lastUpdate;
+	private Date lastUpdate;
 	
-	private LocalDate nextUpdate;
+	private Date nextUpdate;
 
 	public SmartGridReport() {
 	}
@@ -83,12 +83,12 @@ public class SmartGridReport {
 	 * This change could be caused by a system's event, like a power shortage,
 	 * or a periodical price update.
 	 */
-	public LocalDate getLastUpdate() {
+	public Date getLastUpdate() {
 		return lastUpdate;
 	}
 
-	public void setLastUpdate(LocalDate lastUpdate) {
-		this.lastUpdate = lastUpdate;
+	public void setLastUpdate(Date localDateTime) {
+		this.lastUpdate = localDateTime;
 	}
 
 	/**
@@ -96,12 +96,12 @@ public class SmartGridReport {
 	 * this value is used to help prevent pooling devices from overflowing
 	 * the server with unnecessary status requests.
 	 */
-	public LocalDate getNextUpdate() {
+	public Date getNextUpdate() {
 		return nextUpdate;
 	}
 
-	public void setNextUpdate(LocalDate nextUpdate) {
-		this.nextUpdate = nextUpdate;
+	public void setNextUpdate(Date localDateTime) {
+		this.nextUpdate = localDateTime;
 	}
 
 }

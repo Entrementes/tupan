@@ -4,6 +4,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
+ * This is the feedback message sent to the server by the appliance.
+ * It provides a data collection functionality enabling integration with
+ * several pattern recognition tools. 
  * 
  * @author Gunisalvo
  */
@@ -20,12 +23,10 @@ public class SmartApplianceRegistration {
 	@NotNull
 	@Size(min=4, max=125)
 	private String equipamentId;
-	
-	@NotNull
+
 	@Size(min=4, max=25)
 	private String manufacturer;
-	
-	@NotNull
+
 	@Size(min=4, max=25)
 	private String applianceCategory;
 	
@@ -33,11 +34,15 @@ public class SmartApplianceRegistration {
 	private String firmware;
 	
 	@Size(min=4, max=25)
-	private String retornSocket;
+	private String returnSocket;
 	
 	public SmartApplianceRegistration() {
 	}
 
+	/**
+	 * @return the device's owner identification code in the
+	 * electrical utilities service provider system.
+	 */
 	public String getUserId() {
 		return userId;
 	}
@@ -46,6 +51,12 @@ public class SmartApplianceRegistration {
 		this.userId = userId;
 	}
 
+	/**
+	 * @return the electrical utilities service provider identification
+	 * code. This information enables the construction of regional
+	 * SmartGrid communication System where multiple utilities companies'
+	 * data can be used.
+	 */
 	public String getUtlitiesProviderId() {
 		return utlitiesProviderId;
 	}
@@ -54,6 +65,11 @@ public class SmartApplianceRegistration {
 		this.utlitiesProviderId = utlitiesProviderId;
 	}
 
+	/**
+	 * @return the unique code identifying the appliance individually.
+	 * The specification suggests using the device's serial number but
+	 * the decision is up to individual implementations.
+	 */
 	public String getEquipamentId() {
 		return equipamentId;
 	}
@@ -62,6 +78,9 @@ public class SmartApplianceRegistration {
 		this.equipamentId = equipamentId;
 	}
 
+	/**
+	 * @return the smart appliance manufacturer's code.
+	 */
 	public String getManufacturer() {
 		return manufacturer;
 	}
@@ -70,6 +89,10 @@ public class SmartApplianceRegistration {
 		this.manufacturer = manufacturer;
 	}
 
+	/**
+	 * @return this field is used to classify the appliance by
+	 * type, ex: smart wall-plug.
+	 */
 	public String getApplianceCategory() {
 		return applianceCategory;
 	}
@@ -78,6 +101,9 @@ public class SmartApplianceRegistration {
 		this.applianceCategory = applianceCategory;
 	}
 
+	/**
+	 * @return the appliance's embedded software system version. 
+	 */
 	public String getFirmware() {
 		return firmware;
 	}
@@ -86,12 +112,16 @@ public class SmartApplianceRegistration {
 		this.firmware = firmware;
 	}
 
-	public String getRetornSocket() {
-		return retornSocket;
+	/**
+	 * @return this string contains the UDP return socket that allows the
+	 * server to establish a return path to the appliance. 
+	 */
+	public String getReturnSocket() {
+		return returnSocket;
 	}
 
-	public void setRetornSocket(String retornSocket) {
-		this.retornSocket = retornSocket;
+	public void setReturnSocket(String returnSocket) {
+		this.returnSocket = returnSocket;
 	}
 	
 }
