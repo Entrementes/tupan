@@ -29,7 +29,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @ComponentScan
 @EnableAutoConfiguration
 public class TupanServer extends WebMvcConfigurerAdapter {
-
+	
 	private MockGridConnection gridState = new MockGridConnection();
 	
 	@Override
@@ -40,7 +40,6 @@ public class TupanServer extends WebMvcConfigurerAdapter {
 	@Bean(name = "org.dozer.Mapper")
 	public DozerBeanMapper dozerBean() {
 		List<String> mappingFiles = Arrays.asList();
-
 		DozerBeanMapper dozerBean = new DozerBeanMapper();
 		dozerBean.setMappingFiles(mappingFiles);
 		return dozerBean;
@@ -69,8 +68,7 @@ public class TupanServer extends WebMvcConfigurerAdapter {
 	}
 
 	public static void main(String[] args) {
-		ConfigurableApplicationContext context = SpringApplication.run(
-				TupanServer.class, args);
+		ConfigurableApplicationContext context = SpringApplication.run(TupanServer.class, args);
 		prepareDatabase(context);
 		prepareGridState(context);
 	}

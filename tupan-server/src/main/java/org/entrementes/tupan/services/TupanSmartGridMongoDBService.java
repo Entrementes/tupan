@@ -1,5 +1,7 @@
 package org.entrementes.tupan.services;
 
+import java.util.List;
+
 import org.dozer.Mapper;
 import org.entrementes.tupan.entities.Consumption;
 import org.entrementes.tupan.entities.SmartAppliance;
@@ -14,6 +16,7 @@ import org.entrementes.tupan.model.SmartGridReportRequest;
 import org.entrementes.tupan.repositories.ConsumptionRepository;
 import org.entrementes.tupan.repositories.SmartApplianceRepository;
 import org.entrementes.tupan.repositories.UserRepository;
+import org.entrementes.tupan.udp.UDPSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,12 +33,15 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 
 	private SmartGridConnection smartGridConnection;
 	
+	private UDPSender sender;
+	
 	@Autowired
 	public TupanSmartGridMongoDBService(	Mapper mapper,
 											SmartApplianceRepository applianceRepository,
 											ConsumptionRepository consumptionRespository,
 											UserRepository userRespository,
-											SmartGridConnection smartGridConnection) {
+											SmartGridConnection smartGridConnection,
+											UDPSender sender) {
 		this.mapper = mapper;
 		this.applianceRepository = applianceRepository;
 		this.consumptionRespository = consumptionRespository;
@@ -84,7 +90,12 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 
 	@Override
 	public void reportGridUpdate() {
-		// TODO Auto-generated method stub
+		List<SmartApplianceRegistration> bidirectionalEnabledAppliances = this.applianceRepository.findByRetrunSocketIsNotNull();
+		for(SmartApplianceRegistration app : bidirectionalEnabledAppliances){
+			SmartGridReportRequest request = new SmartGridReportRequest(app.getUtlitiesProviderId(), app.getUserId());
+			SmartGridReport report = queryGridState(request);
+			this.sender.sendReport(report, app.getReturnSocket());
+		}
 	}
 
 }
