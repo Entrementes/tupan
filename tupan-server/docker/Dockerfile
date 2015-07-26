@@ -28,10 +28,12 @@ RUN bash -c 'touch /app.jar'
 ADD start.sh /start.sh
 RUN chmod 755 /start.sh
 
-EXPOSE 9999
 EXPOSE 9010
+EXPOSE 9999
 EXPOSE 9998
+EXPOSE 9997
+EXPOSE 9996
 EXPOSE 27017
 
 ENTRYPOINT ["/start.sh"]
-#docker run -d -p 9010:9010 -p 9999:9999 -p 9998:9998/udp gunisalvo/tupan-server
+#docker run -d -p 9010:9010 -p 9999:9999 -p 9998:9998/udp -p 9997:9997/udp -p 9996:9996/udp gunisalvo/tupan-server
