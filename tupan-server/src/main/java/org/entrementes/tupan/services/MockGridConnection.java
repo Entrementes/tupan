@@ -2,7 +2,6 @@ package org.entrementes.tupan.services;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 import org.entrementes.tupan.entities.ConsumptionFlag;
 import org.entrementes.tupan.model.ConsumerType;
