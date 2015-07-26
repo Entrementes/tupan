@@ -2,12 +2,17 @@ package org.entrementes.tupan.services;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import org.entrementes.tupan.entities.ConsumptionFlag;
 import org.entrementes.tupan.model.ConsumerType;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Component
+@Scope("singleton")
 public class MockGridConnection implements SmartGridConnection{
 
 	private ConsumptionFlag flag;
@@ -83,6 +88,10 @@ public class MockGridConnection implements SmartGridConnection{
 
 	public void setSystemMessage(String systemMessage) {
 		this.systemMessage = systemMessage;
+	}
+
+	public void udpateChangeTime() {
+		this.lastUpadate = LocalDateTime.now();
 	}
 	
 }

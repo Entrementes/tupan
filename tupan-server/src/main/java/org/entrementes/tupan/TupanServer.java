@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.dozer.DozerBeanMapper;
+import org.entrementes.tupan.configurations.TupanInformation;
 import org.entrementes.tupan.entities.ConsumptionFlag;
 import org.entrementes.tupan.entities.User;
 import org.entrementes.tupan.model.ConsumerType;
@@ -30,8 +31,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableAutoConfiguration
 public class TupanServer extends WebMvcConfigurerAdapter {
 	
-	private MockGridConnection gridState = new MockGridConnection();
-	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/**").addResourceLocations("/");
@@ -43,11 +42,6 @@ public class TupanServer extends WebMvcConfigurerAdapter {
 		DozerBeanMapper dozerBean = new DozerBeanMapper();
 		dozerBean.setMappingFiles(mappingFiles);
 		return dozerBean;
-	}
-	
-	@Bean
-	public MockGridConnection gridState(){
-		return this.gridState;
 	}
 
 	@Bean
@@ -75,10 +69,11 @@ public class TupanServer extends WebMvcConfigurerAdapter {
 
 	private static void prepareGridState(ConfigurableApplicationContext context) {
 		MockGridConnection state = context.getBean(MockGridConnection.class);
-		state.setFlag(ConsumptionFlag.WHITE);
-		state.setBaseFare(5.00);
-		state.setSystemMessage("OK");
-		state.setUpdateInterval(2);
+		TupanInformation config = context.getBean(TupanInformation.class);
+		state.setFlag(ConsumptionFlag.valueOf(config.getConsumptionFlag()));
+		state.setBaseFare(config.getBaseFare());
+		state.setSystemMessage(config.getSystemMessage());
+		state.setUpdateInterval(config.getUpdateInterval());
 		state.setLastUpadate(LocalDateTime.now());
 	}
 

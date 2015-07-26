@@ -47,6 +47,7 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 		this.consumptionRespository = consumptionRespository;
 		this.userRespository = userRespository;
 		this.smartGridConnection = smartGridConnection;
+		this.sender = sender;
 	}
 	
 	@Override

@@ -22,8 +22,9 @@ public class ScadaResources {
 	private TupanSmartGridService tupanService;
 	
 	@Autowired
-	public ScadaResources(MockGridConnection gridState) {
+	public ScadaResources(MockGridConnection gridState, TupanSmartGridService tupanService) {
 		this.gridConnection = gridState;
+		this.tupanService = tupanService;
 	}
 	
 	@RequestMapping(value="/state",method=RequestMethod.GET, produces={"application/json","application/xml","text/plain"})
@@ -35,7 +36,7 @@ public class ScadaResources {
 	@RequestMapping(value="/state",method=RequestMethod.POST, consumes={"application/json"}, produces={"application/json","application/xml","text/plain"})
 	@ResponseStatus(value = HttpStatus.OK)
 	public @ResponseBody MockGridConnection changeGridState(@RequestBody MockGridConnection stateChange){
-		this.gridConnection = new MockGridConnection();
+		this.gridConnection.udpateChangeTime();
 		this.gridConnection.setLastUpadate(LocalDateTime.now());
 		this.gridConnection.setBaseFare(stateChange.getBaseFare());
 		this.gridConnection.setFlag(stateChange.getFlag());
