@@ -90,7 +90,7 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 
 	@Override
 	public void reportGridUpdate() {
-		List<SmartApplianceRegistration> bidirectionalEnabledAppliances = this.applianceRepository.findByRetrunSocketIsNotNull();
+		List<SmartApplianceRegistration> bidirectionalEnabledAppliances = this.applianceRepository.findByReturnSocketIsNotNull();
 		for(SmartApplianceRegistration app : bidirectionalEnabledAppliances){
 			SmartGridReportRequest request = new SmartGridReportRequest(app.getUtlitiesProviderId(), app.getUserId());
 			SmartGridReport report = queryGridState(request);
