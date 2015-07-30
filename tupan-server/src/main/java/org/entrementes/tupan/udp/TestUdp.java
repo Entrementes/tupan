@@ -11,13 +11,13 @@ public class TestUdp {
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(
 				System.in));
 		DatagramSocket clientSocket = new DatagramSocket();
-		InetAddress IPAddress = InetAddress.getByName("localhost");
+		InetAddress IPAddress = InetAddress.getByName("45.55.161.149");
 		byte[] sendData = new byte[576];
 		byte[] receiveData = new byte[576];
 		String sentence = inFromUser.readLine();
 		sendData = sentence.getBytes();
 		DatagramPacket sendPacket = new DatagramPacket(sendData,
-				sendData.length, IPAddress, 9998);
+				sendData.length, IPAddress, 9996);
 		clientSocket.send(sendPacket);
 		DatagramPacket receivePacket = new DatagramPacket(receiveData,
 				receiveData.length);

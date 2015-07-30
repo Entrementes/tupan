@@ -17,12 +17,16 @@ import org.entrementes.tupan.repositories.ConsumptionRepository;
 import org.entrementes.tupan.repositories.SmartApplianceRepository;
 import org.entrementes.tupan.repositories.UserRepository;
 import org.entrementes.tupan.udp.UDPSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(TupanSmartGridMongoDBService.class);
+	
 	private Mapper mapper;
 	
 	private SmartApplianceRepository applianceRepository;
@@ -48,6 +52,7 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 		this.userRespository = userRespository;
 		this.smartGridConnection = smartGridConnection;
 		this.sender = sender;
+		LOGGER.info("tupan service up");
 	}
 	
 	@Override
@@ -62,12 +67,14 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 		report.setSystemStateCode(this.smartGridConnection.getSystemMessage());
 		report.setLastUpdate(DateUtils.asDate(this.smartGridConnection.getLastUpdate()));
 		report.setNextUpdate(DateUtils.asDate(this.smartGridConnection.getNextUpdate()));
+		LOGGER.info("query done for {}/{}",request.getUtlitiesProviderId(),request.getUtlitiesProviderId());
 		return report;
 	}
 
 	private User loadUser(String userId, String utlitiesProviderId) {
 		User user = this.userRespository.findByUserIdAndUtlitiesProviderId(userId, utlitiesProviderId);
 		if(user == null){
+			LOGGER.warn("tupan service: user not found {}/{}",utlitiesProviderId,userId);
 			throw new UserNotFoundException();
 		}
 		return user;
@@ -78,7 +85,7 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 																						UserNotFoundException {
 		loadUser(registration.getUserId(), registration.getUtlitiesProviderId());
 		this.applianceRepository.save(this.mapper.map(registration, SmartAppliance.class));
-		
+		LOGGER.info("appliance {} registred for {}/{}", registration.getEquipamentId(), registration.getUtlitiesProviderId(), registration.getUserId());
 	}
 
 	@Override
@@ -86,12 +93,14 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 																			UserNotFoundException {
 		loadUser(report.getUserId(), report.getUtlitiesProviderId());
 		this.consumptionRespository.save(this.mapper.map(report, Consumption.class));
+		LOGGER.info("consumption report registred for {}/{}/{}", report.getUtlitiesProviderId(), report.getUserId(), report.getEquipamentId());
 		
 	}
 
 	@Override
 	public void reportGridUpdate() {
 		List<SmartApplianceRegistration> bidirectionalEnabledAppliances = this.applianceRepository.findByReturnSocketIsNotNull();
+		LOGGER.info("reposrting change in grid state for {} devices", bidirectionalEnabledAppliances.size());
 		for(SmartApplianceRegistration app : bidirectionalEnabledAppliances){
 			SmartGridReportRequest request = new SmartGridReportRequest(app.getUtlitiesProviderId(), app.getUserId());
 			SmartGridReport report = queryGridState(request);

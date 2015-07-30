@@ -1,5 +1,6 @@
 package org.entrementes.tupan.resources;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.entrementes.tupan.model.ConsumptionReport;
@@ -38,15 +39,16 @@ public class TupanResources {
 	
 	@RequestMapping(value="/{utlities-provider-id}/{user-id}",method=RequestMethod.POST, consumes={"application/json","application/xml"})
 	@ResponseStatus(value = HttpStatus.OK)
-	public ResponseEntity<String> registerSmartAppliance( @Valid @RequestBody SmartApplianceRegistration connectedDevice, BindingResult validationResult) {
+	public ResponseEntity<String> registerSmartAppliance(@Valid @RequestBody SmartApplianceRegistration connectedDevice, BindingResult validationResult) {
 		if(validationResult.hasErrors()){
 			//
 		}
 		this.service.registerSmartAppliance(connectedDevice);
+		//System.out.println(connectedDevice);
 		return new ResponseEntity<String>(HttpStatus.CREATED);
 	}
 	
-	@RequestMapping(value="/{utlities-provider-id}/{user-id}/{equipment-id}",method=RequestMethod.POST, consumes={"application/json","application/xml"})
+	@RequestMapping(value="/{utlities-provider-id}/{user-id}/{equipment-id}",method=RequestMethod.POST)
 	@ResponseStatus(value = HttpStatus.OK)
 	public ResponseEntity<String> registerConsumptionReport( @Valid @RequestBody ConsumptionReport report, BindingResult validationResult) {
 		if(validationResult.hasErrors()){
