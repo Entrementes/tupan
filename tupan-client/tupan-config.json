@@ -1,0 +1,11 @@
+{
+	"userId" : "gunisalvo",
+	"utilitiesProviderId" : "INFNET",
+	"equipmentId" : "BLANKA-001",
+	"manufacturer" : "Entrementes",
+	"firmware" : "1.0.0",
+	"applianceCategory" : "Smart Light Socket",
+	"electricalFareThreshold" : 4.0,
+	"serverUrl" : "45.55.161.149",
+	"serverPort" : 9999
+}
