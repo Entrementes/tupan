@@ -147,7 +147,7 @@ void initializeConfigurations(void){
     }
     USER_ID = loadedConfigurations["userId"];  
     UTILITIES_PROVIDER_ID = loadedConfigurations["utlitiesProviderId"];
-    EQUIPMENT_ID = loadedConfigurations["equipamentId"];
+    EQUIPMENT_ID = loadedConfigurations["equipmentId"];
     MANUFACTURER = loadedConfigurations["manufacturer"];
     FIRMWARE = loadedConfigurations["firmware"];
     APPLIANCE_CATEGORY = loadedConfigurations["applianceCategory"];
@@ -185,7 +185,7 @@ void sendConsumptionReport(const unsigned long serverTime){
     
   consumptionReport["userId"] = USER_ID.c_str();
   consumptionReport["utlitiesProviderId"] = UTILITIES_PROVIDER_ID.c_str();
-  consumptionReport["equipamentId"] = EQUIPMENT_ID.c_str();
+  consumptionReport["equipmentId"] = EQUIPMENT_ID.c_str();
   consumptionReport["electricalConsumption"] = totalConsumption;
   consumptionReport["operationTime"] = serverTime - operationStartedIn;
   consumptionReport["finished"] = true;
@@ -254,7 +254,7 @@ boolean registerDevice(void){
   JsonObject& registerRequestBody = jsonBuffer.createObject();
   registerRequestBody["userId"] = USER_ID.c_str();
   registerRequestBody["utlitiesProviderId"] = UTILITIES_PROVIDER_ID.c_str();
-  registerRequestBody["equipamentId"] = EQUIPMENT_ID.c_str();
+  registerRequestBody["equipmentId"] = EQUIPMENT_ID.c_str();
   registerRequestBody["manufacturer"] = MANUFACTURER.c_str();
   registerRequestBody["applianceCategory"] = APPLIANCE_CATEGORY.c_str();
   registerRequestBody["firmware"] = FIRMWARE.c_str();

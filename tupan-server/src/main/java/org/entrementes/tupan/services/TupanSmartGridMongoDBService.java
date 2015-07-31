@@ -85,7 +85,7 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 																						UserNotFoundException {
 		loadUser(registration.getUserId(), registration.getUtlitiesProviderId());
 		this.applianceRepository.save(this.mapper.map(registration, SmartAppliance.class));
-		LOGGER.info("appliance {} registred for {}/{}", registration.getEquipamentId(), registration.getUtlitiesProviderId(), registration.getUserId());
+		LOGGER.info("appliance {} registred for {}/{}", registration.getEquipmentId(), registration.getUtlitiesProviderId(), registration.getUserId());
 	}
 
 	@Override
@@ -93,7 +93,7 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 																			UserNotFoundException {
 		loadUser(report.getUserId(), report.getUtlitiesProviderId());
 		this.consumptionRespository.save(this.mapper.map(report, Consumption.class));
-		LOGGER.info("consumption report registred for {}/{}/{}", report.getUtlitiesProviderId(), report.getUserId(), report.getEquipamentId());
+		LOGGER.info("consumption report registred for {}/{}/{}", report.getUtlitiesProviderId(), report.getUserId(), report.getEquipmentId());
 		
 	}
 

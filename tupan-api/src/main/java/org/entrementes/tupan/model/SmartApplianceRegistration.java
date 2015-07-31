@@ -22,7 +22,7 @@ public class SmartApplianceRegistration {
 	
 	@NotNull
 	@Size(min=4, max=125)
-	private String equipamentId;
+	private String equipmentId;
 
 	@Size(min=4, max=25)
 	private String manufacturer;
@@ -70,12 +70,12 @@ public class SmartApplianceRegistration {
 	 * The specification suggests using the device's serial number but
 	 * the decision is up to individual implementations.
 	 */
-	public String getEquipamentId() {
-		return equipamentId;
+	public String getEquipmentId() {
+		return equipmentId;
 	}
 
-	public void setEquipamentId(String equipamentId) {
-		this.equipamentId = equipamentId;
+	public void setEquipmentId(String equipmentId) {
+		this.equipmentId = equipmentId;
 	}
 
 	/**

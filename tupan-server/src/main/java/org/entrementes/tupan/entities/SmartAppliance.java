@@ -7,8 +7,8 @@ public class SmartAppliance extends SmartApplianceRegistration{
 	
 	@Id
 	@Override
-	public String getEquipamentId() {
-		return super.getEquipamentId();
+	public String getEquipmentId() {
+		return super.getEquipmentId();
 	}
 
 }

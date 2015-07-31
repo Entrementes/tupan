@@ -13,7 +13,7 @@ public class ConsumptionReport {
 	
 	private String utlitiesProviderId;
 	
-	private String equipamentId;
+	private String equipmentId;
 	
 	private double electricalConsumption;
 	
@@ -55,12 +55,12 @@ public class ConsumptionReport {
 	 * The specification suggests using the device's serial number but
 	 * the decision is up to individual implementations.
 	 */
-	public String getEquipamentId() {
-		return equipamentId;
+	public String getEquipmentId() {
+		return equipmentId;
 	}
 
-	public void setEquipamentId(String equipamentId) {
-		this.equipamentId = equipamentId;
+	public void setEquipmentId(String equipmentId) {
+		this.equipmentId = equipmentId;
 	}
 
 	/**
