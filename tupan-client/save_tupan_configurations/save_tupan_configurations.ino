@@ -60,8 +60,8 @@ void setup()
   configurations["manufacturer"] = "Entrementes";
   configurations["firmware"] = "1.0.0";
   configurations["applianceCategory"] = "Smart Light Socket";
-  configurations["electricalFareThreshold"] = 4.0;
-  configurations["serverUrl"] = "192.168.0.4";
+  configurations["electricalFareThreshold"] = 5.0;
+  configurations["serverUrl"] = "45.55.161.149";
   configurations["serverPort"] = 9999;
   
   // if the file opened okay, write to it:

@@ -49,8 +49,9 @@ boolean needUpdateConsumption = false;
 
 EthernetClient client;
 
-void setup()
-{
+void setup(void){
+  Serial.println(F("STARTING SETUP..."));
+  
   Serial.begin(9600);
   //Cur Const= Ratio/BurdenR. 1800/62 = 29.
   consumptionMonitor.current(ELECTRIC_CURRENT_MONITOR, 29);
@@ -77,15 +78,56 @@ void setup()
   //Log Configurations;
   initializeConfigurations();
   
+  delay(1000);
+  
   if(registerDevice()){
     Serial.println(F("device registred"));
   }else{
     Serial.println(F("error connecting with server."));
   }
   deviceOn();
+  Serial.println(F("...SETUP DONE"));
 }
 
-void initializeConfigurations(){
+void loop(void)
+{
+  unsigned long serverTime = queryNTP();
+  double Irms = consumptionMonitor.calcIrms(1480);
+  
+  if(needUpdateConsumption){
+    Serial.println(F("Updating consumption."));
+    updateTotalConsumption(Irms,serverTime);
+  }
+  delay(1000);
+  if(needStartTimeUpdate){
+    Serial.println(F("Setting start time."));
+    operationStartedIn = serverTime;
+    needStartTimeUpdate = false;
+  }
+  delay(1000);
+  if(serverTime > nextUpdate){
+    String gridReport;
+    //while(nextUpdate == 0){
+      gridReport = tupanDoGetJson(UTILITIES_PROVIDER_ID + "/" + USER_ID);
+    //}
+    Serial.println("Grid Report: " + gridReport);
+    if(!processGridState(gridReport) && digitalRead(RELAY_PIN) == 1){
+      deviceOff(serverTime);
+    }
+  }
+  
+  Serial.print(F("The device is  [1 = ON / 0 = OFF]:  "));
+  Serial.println(digitalRead(RELAY_PIN));
+  Serial.print(F("Electrical Current : "));
+  Serial.println(Irms);
+  Serial.print(F("Power Consumption (W) : "));
+  Serial.println(Irms * gridVoltage);
+  Serial.print(F("Total Consumption (KW/h): "));
+  Serial.println(totalConsumption);
+  delay(10000);
+}
+
+void initializeConfigurations(void){
   File configFile = SD.open("tupan.cnf");
   if (configFile) {
     String jsonBody = "";
@@ -115,11 +157,10 @@ void initializeConfigurations(){
   } else {
     Serial.println("error opening tupan.cnf.");
   }
-  delay(1000);
 }
 
 
-void deviceOn(){
+void deviceOn(void){
   digitalWrite(RELAY_PIN, HIGH);
   Serial.print(F("The device is [1 = ON / 0 = OFF]: "));
   Serial.println(digitalRead(RELAY_PIN));
@@ -134,6 +175,7 @@ void deviceOff(const unsigned long serverTime){
   needUpdateConsumption = false;
   sendConsumptionReport(serverTime);
 }
+
 void sendConsumptionReport(const unsigned long serverTime){  
   Serial.println(F("sending consumption report..."));
   StaticJsonBuffer<250> jsonBuffer;
@@ -158,38 +200,6 @@ void sendConsumptionReport(const unsigned long serverTime){
   doTupanPost(UTILITIES_PROVIDER_ID+"/"+USER_ID+"/"+EQUIPMENT_ID, contentBuffer);
   
   Serial.println(F("report done"));
-}
-
-void loop()
-{
-  unsigned long serverTime = queryNTP();
-  double Irms = consumptionMonitor.calcIrms(1480);
-  
-  if(needUpdateConsumption){
-    Serial.println(F("Updating consumption."));
-    updateTotalConsumption(Irms,serverTime);
-  }
-  if(needStartTimeUpdate){
-    Serial.println(F("Setting start time."));
-    operationStartedIn = serverTime;
-    needStartTimeUpdate = false;
-  }
-  if(serverTime > nextUpdate){
-    String gridReport = tupanDoGetJson(UTILITIES_PROVIDER_ID + "/" + USER_ID);
-    Serial.println("Grid Report: " + gridReport);
-    if(!processGridState(gridReport) && digitalRead(RELAY_PIN) == 1){
-      deviceOff(serverTime);
-    }
-  }
-  Serial.print(F("The device is  [1 = ON / 0 = OFF]:  "));
-  Serial.println(digitalRead(RELAY_PIN));
-  Serial.print(F("Electrical Current : "));
-  Serial.println(Irms);
-  Serial.print(F("Power Consumption (W) : "));
-  Serial.println(Irms * gridVoltage);
-  Serial.print(F("Total Consumption (KW/h): "));
-  Serial.println(totalConsumption);
-  delay(10000);
 }
 
 void updateTotalConsumption(double current, const unsigned long serverTime){
@@ -236,7 +246,7 @@ boolean processGridState(String gridReport){
   return true;
 }
 
-boolean registerDevice(){
+boolean registerDevice(void){
   Serial.println(F("registering smart device..."));
     
   StaticJsonBuffer<250> jsonBuffer;
@@ -265,7 +275,7 @@ boolean registerDevice(){
   }
 }
 
-unsigned long queryNTP(){
+unsigned long queryNTP(void){
   sendNTPpacket(timeServer); // send an NTP packet to a time server
 
   // wait to see if a reply is available
@@ -341,6 +351,7 @@ String tupanDoGetJson(String path){
   String result = F("");
   if (client.connect(TUPAN_SERVER.c_str(), TUPAN_PORT)) {
     Serial.println(F("querying smart-grid state..."));
+    delay(1000);
     
     String getHeader = F("GET /v1/grid/");
     getHeader += path;
@@ -383,6 +394,7 @@ String doTupanPost(String path, char *contentBuffer){
   Serial.println(path);
   if (client.connect(TUPAN_SERVER.c_str(), TUPAN_PORT)) {
     Serial.println(F("client connected"));
+    delay(1000);
     String post = F("POST /v1/grid/");
     post += path;
     post += " HTTP/1.1";
@@ -432,9 +444,3 @@ void webSerialPrintln(String content){
    Serial.println(content);
   client.println(content);
 }
-
-
-
-
-
-
