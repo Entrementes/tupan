@@ -67,7 +67,7 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 		report.setSystemStateCode(this.smartGridConnection.getSystemMessage());
 		report.setLastUpdate(DateUtils.asDate(this.smartGridConnection.getLastUpdate()));
 		report.setNextUpdate(DateUtils.asDate(this.smartGridConnection.getNextUpdate()));
-		LOGGER.info("query done for {}/{}",request.getUtlitiesProviderId(),request.getUtlitiesProviderId());
+		LOGGER.info("query done for {}/{}",request.getUtlitiesProviderId(),request.getUserId());
 		return report;
 	}
 

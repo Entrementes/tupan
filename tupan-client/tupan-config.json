@@ -1,7 +1,7 @@
 {
 	"userId" : "gunisalvo",
 	"utilitiesProviderId" : "INFNET",
-	"equipmentId" : "BLANKA-001",
+	"equipmentId" : "BLANKA-ETH-HTTP-001",
 	"manufacturer" : "Entrementes",
 	"firmware" : "1.0.0",
 	"applianceCategory" : "Smart Light Socket",

@@ -40,11 +40,12 @@ public class TupanResources {
 	@RequestMapping(value="/{utlities-provider-id}/{user-id}",method=RequestMethod.POST, consumes={"application/json","application/xml"})
 	@ResponseStatus(value = HttpStatus.OK)
 	public ResponseEntity<String> registerSmartAppliance(@Valid @RequestBody SmartApplianceRegistration connectedDevice, BindingResult validationResult) {
+//		@RequestBody String connectedDevice){//
 		if(validationResult.hasErrors()){
 			//
 		}
 		this.service.registerSmartAppliance(connectedDevice);
-		//System.out.println(connectedDevice);
+//		System.out.println(connectedDevice);
 		return new ResponseEntity<String>(HttpStatus.CREATED);
 	}
 	
