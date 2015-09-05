@@ -8,6 +8,8 @@ import org.entrementes.tupan.model.SmartApplianceRegistration;
 import org.entrementes.tupan.model.SmartGridReport;
 import org.entrementes.tupan.model.SmartGridReportRequest;
 
+import java.time.LocalDateTime;
+
 /**
  * Tupã is a communication framework intended to provide a efficient
  * message exchange system between Smart Electrical Grids and  computer 
@@ -63,5 +65,7 @@ public interface TupanSmartGridService {
 																			UserNotFoundException;
 
 	void reportGridUpdate();
+
+	boolean hasCacheExpired(LocalDateTime lastQueryDate);
 
 }

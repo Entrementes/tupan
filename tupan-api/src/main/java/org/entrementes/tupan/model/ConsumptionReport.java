@@ -19,8 +19,6 @@ public class ConsumptionReport {
 	
     private Long operationTime;
     
-    private Boolean finished;
-    
     public ConsumptionReport() {
 	}
 
@@ -84,19 +82,6 @@ public class ConsumptionReport {
 
 	public void setOperationTime(Long operationTime) {
 		this.operationTime = operationTime;
-	}
-
-	/**
-	 * @return if the electrical operation is still ongoing this
-	 * report can be marked as unfinished, allowing periodical reports
-	 * and enabling some resistance to data loss.
-	 */
-	public Boolean getFinished() {
-		return finished;
-	}
-
-	public void setFinished(Boolean finished) {
-		this.finished = finished;
 	}
 
 }
