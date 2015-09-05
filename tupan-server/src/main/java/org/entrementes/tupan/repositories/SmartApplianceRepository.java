@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface SmartApplianceRepository extends MongoRepository<SmartAppliance, String>{
 
-	List<SmartApplianceRegistration> findByReturnSocketIsNotNull();
+	List<SmartAppliance> findByReturnSocketIsNotNull();
+
+	SmartAppliance findByUserIdAndUtlitiesProviderIdAndEquipmentId(String userId, String utilitiesProviderId, String equipmentId);
 
 }

@@ -7,4 +7,6 @@ public interface UserRepository extends MongoRepository<User, String>{
 
 	User findByUserIdAndUtlitiesProviderId(String userId, String utlitiesProviderId);
 
+	long countByUtlitiesProviderId(String utlitiesProviderId);
+
 }

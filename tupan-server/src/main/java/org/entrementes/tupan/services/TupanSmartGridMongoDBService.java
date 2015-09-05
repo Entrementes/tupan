@@ -1,11 +1,15 @@
 package org.entrementes.tupan.services;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import org.dozer.Mapper;
 import org.entrementes.tupan.entities.Consumption;
 import org.entrementes.tupan.entities.SmartAppliance;
 import org.entrementes.tupan.entities.User;
+import org.entrementes.tupan.expection.SmartApplianceRegistrationConflicException;
 import org.entrementes.tupan.expection.SmartGridNotAvailableExecption;
 import org.entrementes.tupan.expection.UserNotFoundException;
 import org.entrementes.tupan.expection.UtilitiesProviderNotFoundException;
@@ -22,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service(value = "1.0")
 public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TupanSmartGridMongoDBService.class);
@@ -72,18 +76,45 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 	}
 
 	private User loadUser(String userId, String utlitiesProviderId) {
-		User user = this.userRespository.findByUserIdAndUtlitiesProviderId(userId, utlitiesProviderId);
-		if(user == null){
-			LOGGER.warn("tupan service: user not found {}/{}",utlitiesProviderId,userId);
-			throw new UserNotFoundException();
+		if(this.userRespository.countByUtlitiesProviderId(utlitiesProviderId) > 0) {
+			User user = this.userRespository.findByUserIdAndUtlitiesProviderId(userId, utlitiesProviderId);
+			if (user == null) {
+				LOGGER.warn("tupan service: user not found {}/{}", utlitiesProviderId, userId);
+				throw new UserNotFoundException("user not found {}".replace("{}", userId));
+			}
+			return user;
+		}else{
+			throw new UtilitiesProviderNotFoundException("utilities provider not found {}".replace("{}", utlitiesProviderId));
 		}
-		return user;
 	}
+
+    private SmartApplianceRegistration loadDevice(String userId, String utlitiesProviderId, String equipmetId) {
+        if(this.userRespository.countByUtlitiesProviderId(utlitiesProviderId) > 0) {
+            User user = this.userRespository.findByUserIdAndUtlitiesProviderId(userId, utlitiesProviderId);
+            if (user == null) {
+                LOGGER.warn("tupan service: user not found {}/{}", utlitiesProviderId, userId);
+                throw new UserNotFoundException("user not found {}".replace("{}", userId));
+            }
+            return this.applianceRepository.findByUserIdAndUtlitiesProviderIdAndEquipmentId(userId,utlitiesProviderId,equipmetId);
+        }else{
+            throw new UtilitiesProviderNotFoundException("utilities provider not found {}".replace("{}", utlitiesProviderId));
+        }
+    }
 
 	@Override
 	public void registerSmartAppliance(SmartApplianceRegistration registration) throws UtilitiesProviderNotFoundException, 
-																						UserNotFoundException {
-		loadUser(registration.getUserId(), registration.getUtlitiesProviderId());
+																						UserNotFoundException,
+                                                                                        SmartApplianceRegistrationConflicException {
+
+        SmartAppliance existingDevice =
+            this.applianceRepository.findByUserIdAndUtlitiesProviderIdAndEquipmentId(
+                registration.getUserId(),
+                registration.getUtlitiesProviderId(),
+                registration.getEquipmentId());
+        if(existingDevice != null){
+            throw new SmartApplianceRegistrationConflicException("appliance {} already registred for this user.".replace("{}", registration.getEquipmentId()));
+        }
+        loadUser(registration.getUserId(), registration.getUtlitiesProviderId());
 		this.applianceRepository.save(this.mapper.map(registration, SmartAppliance.class));
 		LOGGER.info("appliance {} registred for {}/{}", registration.getEquipmentId(), registration.getUtlitiesProviderId(), registration.getUserId());
 	}
@@ -91,7 +122,7 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 	@Override
 	public void registerConsumptionReport(ConsumptionReport report)	throws UtilitiesProviderNotFoundException, 
 																			UserNotFoundException {
-		loadUser(report.getUserId(), report.getUtlitiesProviderId());
+		loadDevice(report.getUserId(), report.getUtlitiesProviderId(), report.getEquipmentId());
 		this.consumptionRespository.save(this.mapper.map(report, Consumption.class));
 		LOGGER.info("consumption report registred for {}/{}/{}", report.getUtlitiesProviderId(), report.getUserId(), report.getEquipmentId());
 		
@@ -99,13 +130,18 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
 
 	@Override
 	public void reportGridUpdate() {
-		List<SmartApplianceRegistration> bidirectionalEnabledAppliances = this.applianceRepository.findByReturnSocketIsNotNull();
-		LOGGER.info("reposrting change in grid state for {} devices", bidirectionalEnabledAppliances.size());
+		List<SmartAppliance> bidirectionalEnabledAppliances = this.applianceRepository.findByReturnSocketIsNotNull();
+		LOGGER.info("reporting change in grid state for {} devices", bidirectionalEnabledAppliances.size());
 		for(SmartApplianceRegistration app : bidirectionalEnabledAppliances){
 			SmartGridReportRequest request = new SmartGridReportRequest(app.getUtlitiesProviderId(), app.getUserId());
 			SmartGridReport report = queryGridState(request);
 			this.sender.sendReport(report, app.getReturnSocket());
 		}
 	}
+
+    @Override
+    public boolean hasCacheExpired(LocalDateTime lastQueryDate) {
+        return this.smartGridConnection.getLastUpdate().compareTo(lastQueryDate) > 0;
+    }
 
 }
