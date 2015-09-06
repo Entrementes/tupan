@@ -36,4 +36,12 @@ public class DateUtils {
 			return null;
 		}
 	}
+
+	public static LocalDateTime asLocalDateTimeFromMillisseconds(Object millisseconds){
+		try {
+			return asLocalDateTime(new Date((Integer)millisseconds));
+		}catch(ClassCastException ex){
+			return null;
+		}
+	}
 }

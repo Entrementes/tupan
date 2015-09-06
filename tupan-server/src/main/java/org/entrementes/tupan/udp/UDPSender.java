@@ -25,7 +25,7 @@ public class UDPSender {
 		String host = getHost(socketValue);
 		try(DatagramSocket clientSocket = new DatagramSocket()){
 			InetAddress IPAddress = InetAddress.getByName(host);
-			byte[] sendData = new byte[576];
+			byte[] sendData;
 			sendData = this.objectMapper.writeValueAsBytes(report);
 			DatagramPacket sendPacket = new DatagramPacket(sendData,
 					sendData.length, IPAddress, port);
