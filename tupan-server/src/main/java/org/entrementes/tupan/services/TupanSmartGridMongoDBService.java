@@ -112,10 +112,11 @@ public class TupanSmartGridMongoDBService implements TupanSmartGridService{
                 registration.getUtlitiesProviderId(),
                 registration.getEquipmentId());
         if(existingDevice != null){
-            throw new SmartApplianceRegistrationConflicException("appliance {} already registred for this user.".replace("{}", registration.getEquipmentId()));
+            //throw new SmartApplianceRegistrationConflicException("appliance {} already registred for this user.".replace("{}", registration.getEquipmentId()));
+        }else{
+	        loadUser(registration.getUserId(), registration.getUtlitiesProviderId());
+			this.applianceRepository.save(this.mapper.map(registration, SmartAppliance.class));
         }
-        loadUser(registration.getUserId(), registration.getUtlitiesProviderId());
-		this.applianceRepository.save(this.mapper.map(registration, SmartAppliance.class));
 		LOGGER.info("appliance {} registred for {}/{}", registration.getEquipmentId(), registration.getUtlitiesProviderId(), registration.getUserId());
 	}
 

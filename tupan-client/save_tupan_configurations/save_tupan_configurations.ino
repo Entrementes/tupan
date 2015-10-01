@@ -56,12 +56,12 @@ void setup()
   JsonObject& configurations = jsonBuffer.createObject();
   configurations["userId"] = "gunisalvo";
   configurations["utlitiesProviderId"] = "INFNET";
-  configurations["equipamentId"] = "ETH-PL-HTTP-001";
+  configurations["equipmentId"] = "BLANKA-001";
   configurations["manufacturer"] = "Entrementes";
   configurations["firmware"] = "1.0.0";
   configurations["applianceCategory"] = "Smart Light Socket";
   configurations["electricalFareThreshold"] = 5.0;
-  configurations["serverUrl"] = "45.55.161.149";
+  configurations["serverUrl"] = "192.168.1.171";
   configurations["serverPort"] = 9999;
   
   // if the file opened okay, write to it:

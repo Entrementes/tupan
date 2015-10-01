@@ -10,7 +10,7 @@ public class TestUdp {
 	public static void main(String args[]) throws Exception {
 		Long startTime = System.currentTimeMillis();
 		DatagramSocket clientSocket = new DatagramSocket();
-		InetAddress IPAddress = InetAddress.getByName("localhost");
+		InetAddress IPAddress = InetAddress.getByName("45.55.139.88");
 		byte[] sendData;
 		byte[] receiveData = new byte[576];
 		String sentence = "[999999999999999,{\"userId\":\"gunisalvo\",\"utlitiesProviderId\":\"INFNET\"}]";

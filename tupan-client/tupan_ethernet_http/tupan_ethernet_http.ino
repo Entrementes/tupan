@@ -9,11 +9,11 @@ byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
 
-unsigned int ntpPort = 8888;
-
-char timeServer[] = "time.nist.gov";
-
-const int NTP_PACKET_SIZE = 48;
+//unsigned int ntpPort = 8888;
+//
+//char timeServer[] = "time.nist.gov";
+//
+//const int NTP_PACKET_SIZE = 48;
 
 //TUPAN CONFIGURATIONS
 String USER_ID;
@@ -26,9 +26,9 @@ String TUPAN_SERVER;
 unsigned int TUPAN_PORT;
 float FARE_THRESHOLD;
 
-byte packetBuffer[ NTP_PACKET_SIZE];
+//byte packetBuffer[NTP_PACKET_SIZE];
 
-EthernetUDP Udp;
+//EthernetUDP Udp;
 
 EnergyMonitor consumptionMonitor;
 
@@ -56,19 +56,19 @@ void setup(void){
   //Cur Const= Ratio/BurdenR. 1800/62 = 29.
   consumptionMonitor.current(ELECTRIC_CURRENT_MONITOR, 29);
   pinMode(RELAY_PIN, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(53, OUTPUT);
+  digitalWrite(4,LOW);
+  digitalWrite(10,HIGH);
   while (!Serial) {
     ;
   }
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println(F("Failed to configure Ethernet using DHCP"));
-    //DRAW ERROR
-    for (;;)
-      ;
-  }
-  Udp.begin(ntpPort);
+ 
+//  Udp.begin(ntpPort);
 
   Serial.print(F("Initializing SD card..."));
-  pinMode(53, OUTPUT);
+  
   if (!SD.begin(4)) {
     Serial.println(F("initialization failed!"));
     return;
@@ -77,8 +77,13 @@ void setup(void){
   
   //Log Configurations;
   initializeConfigurations();
-  
-  delay(1000);
+  digitalWrite(4,HIGH);
+  digitalWrite(10,LOW);
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println(F("Failed to configure Ethernet using DHCP"));
+    //DRAW ERROR
+    for (;;);
+  }
   
   if(registerDevice()){
     Serial.println(F("device registred"));
@@ -91,7 +96,7 @@ void setup(void){
 
 void loop(void)
 {
-  unsigned long serverTime = queryNTP();
+  unsigned long serverTime = 1000;//queryNTP();
   double Irms = consumptionMonitor.calcIrms(1480);
   
   if(needUpdateConsumption){
@@ -105,16 +110,13 @@ void loop(void)
     needStartTimeUpdate = false;
   }
   delay(1000);
-  if(serverTime > nextUpdate){
-    String gridReport;
-    //while(nextUpdate == 0){
-      gridReport = tupanDoGetJson(UTILITIES_PROVIDER_ID + "/" + USER_ID);
-    //}
+  //if(serverTime > nextUpdate){
+    String gridReport = tupanDoGetJson(UTILITIES_PROVIDER_ID + "/" + USER_ID);
     Serial.println("Grid Report: " + gridReport);
     if(!processGridState(gridReport) && digitalRead(RELAY_PIN) == 1){
       deviceOff(serverTime);
     }
-  }
+  //}
   
   Serial.print(F("The device is  [1 = ON / 0 = OFF]:  "));
   Serial.println(digitalRead(RELAY_PIN));
@@ -124,7 +126,7 @@ void loop(void)
   Serial.println(Irms * gridVoltage);
   Serial.print(F("Total Consumption (KW/h): "));
   Serial.println(totalConsumption);
-  delay(10000);
+  for(;;);
 }
 
 void initializeConfigurations(void){
@@ -275,172 +277,203 @@ boolean registerDevice(void){
   }
 }
 
-unsigned long queryNTP(void){
-  sendNTPpacket(timeServer); // send an NTP packet to a time server
+//unsigned long queryNTP(void){
+//  sendNTPpacket(timeServer); // send an NTP packet to a time server
+//
+//  // wait to see if a reply is available
+//  delay(1000);
+//  unsigned long epoch = -1;
+//  if ( Udp.parsePacket() ) {
+//    // We've received a packet, read the data from it
+//    Udp.read(packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
+//
+//    //the timestamp starts at byte 40 of the received packet and is four bytes,
+//    // or two words, long. First, esxtract the two words:
+//
+//    unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
+//    unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
+//    // combine the four bytes (two words) into a long integer
+//    // this is NTP time (seconds since Jan 1 1900):
+//    unsigned long secsSince1900 = highWord << 16 | lowWord;
+//    //Serial.print("Seconds since Jan 1 1900 = " );
+//    //Serial.println(secsSince1900);
+//
+//    // now convert NTP time into everyday time:
+//    //Serial.print("Unix time = ");
+//    // Unix time starts on Jan 1 1970. In seconds, that's 2208988800:
+//    const unsigned long seventyYears = 2208988800UL;
+//    // subtract seventy years:
+//    epoch = secsSince1900 - seventyYears;
+//    // print Unix time:
+//    //Serial.println(epoch);
+//
+//    // print the hour, minute and second:
+//    Serial.print(F("The UTC time is "));       // UTC is the time at Greenwich Meridian (GMT)
+//    Serial.print((epoch  % 86400L) / 3600); // print the hour (86400 equals secs per day)
+//    Serial.print(':');
+//    if ( ((epoch % 3600) / 60) < 10 ) {
+//      // In the first 10 minutes of each hour, we'll want a leading '0'
+//      Serial.print('0');
+//    }
+//    Serial.print((epoch  % 3600) / 60); // print the minute (3600 equals secs per minute)
+//    Serial.print(':');
+//    if ( (epoch % 60) < 10 ) {
+//      // In the first 10 seconds of each minute, we'll want a leading '0'
+//      Serial.print('0');
+//    }
+//    Serial.println(epoch % 60); // print the second
+//  }
+//  return epoch;
+//}
+//
+//unsigned long sendNTPpacket(char* address)
+//{
+//  // set all bytes in the buffer to 0
+//  memset(packetBuffer, 0, NTP_PACKET_SIZE);
+//  // Initialize values needed to form NTP request
+//  // (see URL above for details on the packets)
+//  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
+//  packetBuffer[1] = 0;     // Stratum, or type of clock
+//  packetBuffer[2] = 6;     // Polling Interval
+//  packetBuffer[3] = 0xEC;  // Peer Clock Precision
+//  // 8 bytes of zero for Root Delay & Root Dispersion
+//  packetBuffer[12]  = 49;
+//  packetBuffer[13]  = 0x4E;
+//  packetBuffer[14]  = 49;
+//  packetBuffer[15]  = 52;
+//
+//  // all NTP fields have been given values, now
+//  // you can send a packet requesting a timestamp:
+//  Udp.beginPacket(address, 123); //NTP requests are to port 123
+//  Udp.write(packetBuffer, NTP_PACKET_SIZE);
+//  Udp.endPacket();
+//}
 
-  // wait to see if a reply is available
-  delay(1000);
-  unsigned long epoch = -1;
-  if ( Udp.parsePacket() ) {
-    // We've received a packet, read the data from it
-    Udp.read(packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
-
-    //the timestamp starts at byte 40 of the received packet and is four bytes,
-    // or two words, long. First, esxtract the two words:
-
-    unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
-    unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
-    // combine the four bytes (two words) into a long integer
-    // this is NTP time (seconds since Jan 1 1900):
-    unsigned long secsSince1900 = highWord << 16 | lowWord;
-    //Serial.print("Seconds since Jan 1 1900 = " );
-    //Serial.println(secsSince1900);
-
-    // now convert NTP time into everyday time:
-    //Serial.print("Unix time = ");
-    // Unix time starts on Jan 1 1970. In seconds, that's 2208988800:
-    const unsigned long seventyYears = 2208988800UL;
-    // subtract seventy years:
-    epoch = secsSince1900 - seventyYears;
-    // print Unix time:
-    //Serial.println(epoch);
-
-    // print the hour, minute and second:
-    Serial.print(F("The UTC time is "));       // UTC is the time at Greenwich Meridian (GMT)
-    Serial.print((epoch  % 86400L) / 3600); // print the hour (86400 equals secs per day)
-    Serial.print(':');
-    if ( ((epoch % 3600) / 60) < 10 ) {
-      // In the first 10 minutes of each hour, we'll want a leading '0'
-      Serial.print('0');
-    }
-    Serial.print((epoch  % 3600) / 60); // print the minute (3600 equals secs per minute)
-    Serial.print(':');
-    if ( (epoch % 60) < 10 ) {
-      // In the first 10 seconds of each minute, we'll want a leading '0'
-      Serial.print('0');
-    }
-    Serial.println(epoch % 60); // print the second
-  }
-  return epoch;
-}
-
-unsigned long sendNTPpacket(char* address)
-{
-  // set all bytes in the buffer to 0
-  memset(packetBuffer, 0, NTP_PACKET_SIZE);
-  // Initialize values needed to form NTP request
-  // (see URL above for details on the packets)
-  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
-  packetBuffer[1] = 0;     // Stratum, or type of clock
-  packetBuffer[2] = 6;     // Polling Interval
-  packetBuffer[3] = 0xEC;  // Peer Clock Precision
-  // 8 bytes of zero for Root Delay & Root Dispersion
-  packetBuffer[12]  = 49;
-  packetBuffer[13]  = 0x4E;
-  packetBuffer[14]  = 49;
-  packetBuffer[15]  = 52;
-
-  // all NTP fields have been given values, now
-  // you can send a packet requesting a timestamp:
-  Udp.beginPacket(address, 123); //NTP requests are to port 123
-  Udp.write(packetBuffer, NTP_PACKET_SIZE);
-  Udp.endPacket();
-}
+char request[400];
 
 String tupanDoGetJson(String path){
-  String result = F("");
+  String response = "";
   if (client.connect(TUPAN_SERVER.c_str(), TUPAN_PORT)) {
     Serial.println(F("querying smart-grid state..."));
     delay(1000);
-    
-    String getHeader = F("GET /v1/grid/");
-    getHeader += path;
-    getHeader += " HTTP/1.1";
-    webSerialPrintln(getHeader);
-    String host = F("Host: ");
-    host += TUPAN_SERVER;
-    host += ":";
-    host += TUPAN_PORT;
-    webSerialPrintln(host);
-    webSerialPrintln(F("Accept: application/json"));
-    webSerialPrintln(F("Connection: close"));
-    Serial.println();
-    client.println();
-    
-    while(client.connected()) {
-      while(client.available()) {
-        client.find((char*)"HTTP/1.1 ");
-        char statusCode[] = "000";
-        client.readBytes(statusCode, 3);
-        if(strcmp(statusCode, "404") == 0 || strcmp(statusCode, "400") == 0 || strcmp(statusCode, "500") == 0){
-          client.stop();
-        }
-        client.find("{");
-        result += "{";
-        while(client.available()) {
-          char inChar = client.read();
-          result += inChar;
+    memset(&request, 0, 400);
+    strcpy(request,"GET /tupan/smart-grid/");
+    strcat(request,path.c_str());
+    strcat(request," HTTP/1.1\n");
+    strcat(request,"Host: ");
+    strcat(request,TUPAN_SERVER.c_str());
+    strcat(request,":");
+    sprintf(request, "%s%d\n", request, TUPAN_PORT);
+    strcat(request,"Accept: application/json\n");
+    strcat(request,"Connection: close\n\n");
+    Serial.println(request);
+    client.write(request);
+    boolean startRead = false;
+    while(client.connected()){
+      if (client.available()) {
+        char c = client.read();
+
+        if (c == '{'){
+          response += c;
+          startRead = true;
+        }else if(startRead){
+          if(c != '}'){ //'>' is our ending character
+            response += c;
+          }else{
+            response += '}';
+            //got what we need here! We can disconnect now
+            startRead = false;
+            client.stop();
+            client.flush();
+            Serial.println("disconnecting.");
+            return response;
+          }
         }
       }
     }
-    client.stop();
   }
-  return result;
 }
 
 String doTupanPost(String path, char *contentBuffer){
   String statusCode = "";
-  Serial.print(F("POSTing "));
-  Serial.println(path);
   if (client.connect(TUPAN_SERVER.c_str(), TUPAN_PORT)) {
-    Serial.println(F("client connected"));
+    Serial.println(F("querying smart-grid state..."));
     delay(1000);
-    String post = F("POST /v1/grid/");
-    post += path;
-    post += " HTTP/1.1";
-    webSerialPrintln(post);
-    String host = F("Host: ");
-    host += TUPAN_SERVER;
-    host += ":";
-    host += TUPAN_PORT;
-    webSerialPrintln(host);
-    webSerialPrintln(F("Content-Type: application/json"));
-    String contentLength = F("Content-Length: ");
-    contentLength += ( strlen(contentBuffer) + 1 ) ;
-    webSerialPrintln(contentLength);
-    webSerialPrintln(F("Cache-Control: no-cache"));
-    Serial.println();
-    client.println();
-    webSerialPrintln(contentBuffer);
-    client.println(contentBuffer);
-    Serial.println();
-    client.println();
-    webSerialPrintln(F("Connection: close"));
-    Serial.println();
-    client.println();
+    memset(&request, 0, 400);
+    strcpy(request,"POST /tupan/smart-grid/");
+    strcat(request,path.c_str());
+    strcat(request," HTTP/1.1\n");
+    strcat(request,"Host: ");
+    strcat(request,TUPAN_SERVER.c_str());
+    strcat(request,":");
+    sprintf(request, "%s%d\n", request, TUPAN_PORT);
+    strcat(request,"Accept: application/json\n");
+    strcat(request,"Content-Type: application/json\n");
+    strcat(request,"Content-Length: ");
+    sprintf(request, "%s %d\n", request, strlen(contentBuffer) + 1 ) ;
+    strcat(request,"Cache-Control: no-cache\n");
+    strcat(request,"Connection: close\n\n");
+    strcat(request,contentBuffer);
+    strcat(request,"\n");
+    Serial.println(request);
+    client.write(request);
     char code[] = "000";
-    while(client.connected()) {
-      while(client.available()) {
+    while(client.connected()){
+      if (client.available()) {
         client.find((char*)"HTTP/1.1 ");
         code[0] = client.read();
         code[1] = client.read();
         code[2] = client.read();
-        Serial.print(F("POST returned: "));
-        Serial.println(code);
+        statusCode += code;
         client.stop();
-        return code;
+        client.flush();
+        Serial.println("disconnecting.");
+        return statusCode;
       }
     }
   }
+//  Serial.print(F("POSTing "));
+//  Serial.println(path);
+//  if (client.connect(TUPAN_SERVER.c_str(), TUPAN_PORT)) {
+//    Serial.println(F("client connected"));
+//    delay(1000);
+//    String post = F("POST /tupan/smart-grid/");
+//    post += path;
+//    post += " HTTP/1.1";
+//    webSerialPrintln(post);
+//    String host = F("Host: ");
+//    host += TUPAN_SERVER;
+//    host += ":";
+//    host += TUPAN_PORT;
+//    webSerialPrintln(host);
+//    webSerialPrintln(F("Content-Type: application/json"));
+//    String contentLength = F("Content-Length: ");
+//    contentLength += ( strlen(contentBuffer) + 1 ) ;
+//    webSerialPrintln(contentLength);
+//    webSerialPrintln(F("Cache-Control: no-cache"));
+//    Serial.println();
+//    client.println();
+//    webSerialPrintln(contentBuffer);
+//    client.println(contentBuffer);
+//    Serial.println();
+//    client.println();
+//    webSerialPrintln(F("Connection: close"));
+//    Serial.println();
+//    client.println();
+//    char code[] = "000";
+//    while(client.connected()) {
+//      while(client.available()) {
+//        client.find((char*)"HTTP/1.1 ");
+//        code[0] = client.read();
+//        code[1] = client.read();
+//        code[2] = client.read();
+//        Serial.print(F("POST returned: "));
+//        Serial.println(code);
+//        client.stop();
+//        return code;
+//      }
+//    }
+//  }
   return statusCode;
 }
 
-void webSerialPrint(String content){
-  Serial.print(content);
-  client.print(content);
-}
-
-void webSerialPrintln(String content){
-   Serial.println(content);
-  client.println(content);
-}
